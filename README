@@ -1,0 +1,51 @@
+The repository contains the code to enable the SEV support on AMD Eypc Processor.
+
+Prepare Hypervisor:
+===================
+Follow the below steps to prepare the host OS (hypervisor) for SEV support:
+
+# cd /home/user/
+# git clone https://github.com/AMDESE/AMDSEV.git
+# cd AMDSEV
+# ./build.sh  (this should take a while, it will build the linux kernel, qemu and ovmf)
+
+The script is designed to produce a kernel debain packages. Install the new kernel
+image as shown below:
+
+# cd /home/user/AMDSEV/output/kernel/
+# sudo dpkg -i linux-image-*.deb
+
+Reboot the host OS and select the "-sev" image from the grub menu.
+
+On successful boot, verify that /dev/sev1 device is created.
+
+Prepare guest OS
+=================
+Follow the below steps to update your guest image with SEV kernel. The step assumes you
+have a working guest image. In below steps we will boot the guest and update the kernel
+image to use our kernel.
+
+1) Launch a guest (non sev)
+ # cd /home/user/AMDSEV/output/qemu-output
+ # sudo ./launch-qmeu.sh -nosev -hda <your disk image>
+
+NOTE: The launch scripts are setup to use UEFI based guest BIOS image (aka OVMF), it is
+assumed that your hard disk image was installed using UEFI based guest BIOS.
+
+2) Login to the guest and copy the linux-image-*deb created during host prepration.
+
+3) Install the kernel image using "dpkg -i linux-image-*.deb"
+
+4) Shutdown the guest
+
+
+Launching SEV Guest
+===================
+
+To launch SEV enabled guest, use:
+
+# cd /home/user/AMDSEV/output/qemu-output
+# sudo ./launch-qemu.sh -hda <your disk image>
+
+
+NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest

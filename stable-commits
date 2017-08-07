@@ -1,0 +1,12 @@
+#
+# stable commit for SEV test builds
+#
+
+KERNEL_GIT_URL=https://github.com/AMDESE/AMDSEV.git
+KERNEL_COMMIT=e4f36d344edfa6ad58a49b0e3f5f67ba8ba7740a # kernel-rfc-3
+
+QEMU_GIT_URL=https://github.com/AMDESE/AMDSEV.git
+QEMU_COMMIT=b6924ec6794d168ac4d4e6eb3e420d11172d1e02  # qemu-rfc-4+
+
+EDK2_GIT_URL=https://github.com/tianocore/edk2.git   
+
