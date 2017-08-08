@@ -20,10 +20,8 @@ run_cmd()
 fetch_kernel()
 {
 	run_cmd "mkdir -p ${BUILD_DIR}/kernel"
-	run_cmd "git clone ${KERNEL_GIT_URL} ${BUILD_DIR}/kernel"
+	run_cmd "git clone --single-branch -b ${KERNEL_COMMIT} ${KERNEL_GIT_URL} ${BUILD_DIR}/kernel"
 	cd ${BUILD_DIR}/kernel
-	run_cmd "git branch build ${KERNEL_COMMIT}"
-	run_cmd "git checkout build"
 }
 
 build_kernel()
@@ -75,10 +73,8 @@ build_ovmf()
 fetch_qemu()
 {
 	run_cmd "mkdir -p ${BUILD_DIR}/qemu"
-	run_cmd "git clone ${QEMU_GIT_URL} ${BUILD_DIR}/qemu"
+	run_cmd "git clone --single-branch -b ${QEMU_COMMIT} ${QEMU_GIT_URL} ${BUILD_DIR}/qemu"
 	cd ${BUILD_DIR}/qemu
-	run_cmd "git branch build ${QEMU_COMMIT}"
-	run_cmd "git checkout build"
 }
 
 build_qemu()
