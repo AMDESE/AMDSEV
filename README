@@ -5,7 +5,7 @@ Prepare Hypervisor:
 Follow the below steps to prepare the host OS (hypervisor) for SEV support:
 
 # cd /home/user/
-# git clone https://github.com/AMDESE/AMDSEV.git
+# git --single-branch -b master clone https://github.com/AMDESE/AMDSEV.git
 # cd AMDSEV
 # ./build.sh  (this should take a while, it will build the linux kernel, qemu and ovmf)
 
