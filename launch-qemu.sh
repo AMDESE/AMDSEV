@@ -13,24 +13,26 @@ UEFI_BIOS_CODE="`pwd`/share/qemu/OVMF_CODE.fd"
 UEFI_BIOS_VARS="`pwd`/OVMF_VARS.fd"
 #VNC_PORT=""
 AUTOSTART="1"
+ALLOW_DEBUG="0"
+USE_VIRTIO="1"
 
 usage() {
 	echo "$0 [options]"
 	echo "Available <commands>:"
-	echo " -hda          hard disk"
+	echo " -hda          hard disk ($HDA_FILE)"
 	echo " -nosev        disable sev support"
 	echo " -mem          guest memory"
 	echo " -smp          number of cpus"
 	echo " -console      display console to use (serial or graphics)"
 	echo " -vnc          VNC port to use"
 	echo " -bios         bios to use (default $UEFI_BIOS_CODE)"
-	echo " -netconsole   redirect console to tcp port"
 	echo " -kernel       kernel to use"
 	echo " -initrd       initrd to use"
 	echo " -noauto       do not autostart the guest"
 	echo " -cdrom        CDROM image"
 	echo " -hugetlb      use hugetlbfs"
-	echo " -background   background the launch"
+	echo " -allow-debug  allow debugging the VM"
+	echo " -novirtio     do not use virtio devices"
 	exit 1  
 }
 
@@ -80,21 +82,26 @@ setup_hugetlbfs() {
 
 setup_bridge_network() {
 	# Get last tap device on host
-	TAP_NUM=`ifconfig | grep tap | tail -1 | cut -c4- | cut -f1 -d ' '`
+	TAP_NUM=`ifconfig | grep tap | tail -1 | cut -c4- | cut -f1 -d ' ' | cut -f1 -d:`
 	if [ "$TAP_NUM" = "" ]; then
 		TAP_NUM="1"
 	fi
 	TAP_NUM=`echo $(( TAP_NUM + 1 ))`
 	GUEST_TAP_NAME="tap${TAP_NUM}"
-	GUEST_MAC_ADDR=$(printf "00:16:3e:%02x:01:01" 0x${TAP_NUM})
+	GUEST_MAC_ADDR=$(printf "02:16:1e:%02x:01:01" 0x${TAP_NUM})
 
 	echo "Starting network adapter '${GUEST_TAP_NAME}' MAC=$GUEST_MAC_ADDR"
 	run_cmd "ip tuntap add $GUEST_TAP_NAME mode tap user `whoami`"
 	run_cmd "ip link set $GUEST_TAP_NAME up"
 	run_cmd "ip link set $GUEST_TAP_NAME master br0"
 
-	add_opts "-device e1000,mac=${GUEST_MAC_ADDR},netdev=net0"
-      	add_opts "-netdev tap,id=net0,ifname=$GUEST_TAP_NAME,script=no,downscript=no"
+	if [ "$USE_VIRTIO" = "1" ]; then
+		add_opts "-netdev type=tap,script=no,downscript=no,id=net0,ifname=$GUEST_TAP_NAME"
+		add_opts "-device virtio-net-pci,netdev=net0,disable-legacy=on,iommu_platform=true,romfile="
+	else
+		add_opts "-device e1000,mac=${GUEST_MAC_ADDR},netdev=net0"
+		add_opts "-netdev tap,id=net0,ifname=$GUEST_TAP_NAME,script=no,downscript=no"
+	fi
 }
 
 trap exit_from_int SIGINT
@@ -109,7 +116,7 @@ while [[ $1 != "" ]]; do
 		-hda) 		HDA_FILE="${2}"
 				shift
 				;;
-		-nosev) 	SEV_GUEST=""
+		-nosev) 	SEV_GUEST="0"
 				;;
 		-mem)  		GUEST_SIZE_IN_MB=${2}
 				shift
@@ -145,6 +152,10 @@ while [[ $1 != "" ]]; do
 				;;
 		-hugetlb)	USE_HUGETLBFS="1"
 				;;
+		-allow-debug)   ALLOW_DEBUG="1"
+				;;
+		-novirtio)      USE_VIRTIO="0"
+				;;
 		*) 		usage;;
 	esac
 	shift
@@ -157,7 +168,7 @@ rm -rf ${QEMU_CMDLINE}
 add_opts "${QEMU_INSTALL_DIR}qemu-system-x86_64"
 
 # Basic virtual machine property
-add_opts "-enable-kvm -cpu host"
+add_opts "-enable-kvm -cpu EPYC"
 
 # add number of VCPUs
 [ ! -z ${SMP_NCPUS} ] && add_opts "-smp ${SMP_NCPUS},maxcpus=64"
@@ -176,29 +187,36 @@ add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_BIOS_VARS}"
 
 # If harddisk file is specified then add the HDD drive
 if [ ! -z ${HDA_FILE} ]; then
-	if [[ ${HDA_FILE} = *"qcow2" ]]; then
-		add_opts "-drive file=${HDA_FILE},format=qcow2"
+	if [ "$USE_VIRTIO" = "1" ]; then
+		if [[ ${HDA_FILE} = *"qcow2" ]]; then
+			add_opts "-drive file=${HDA_FILE},if=none,id=disk0,format=qcow2"
+		else
+			add_opts "-drive file=${HDA_FILE},if=none,id=disk0,format=raw"
+		fi
+		add_opts "-device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true"
+		add_opts "-device scsi-hd,drive=disk0"
+		# virtio-blk
+		# add_opts "-device virtio-blk-pci,drive=disk0,disable-legacy=on,iommu_platform=true"
 	else
-		add_opts "-drive file=${HDA_FILE},format=raw"
+		if [[ ${HDA_FILE} = *"qcow2" ]]; then
+			add_opts "-drive file=${HDA_FILE},format=qcow2"
+		else
+			add_opts "-drive file=${HDA_FILE},format=raw"
+		fi
 	fi
 fi
 
-# If this is SEV guest then add the encryption device objects to enable SEV
-if [ ! -z ${SEV_GUEST} ]; then 
-	add_opts "-object sev-guest,id=sev0" 
+# If this is SEV guest then add the encryption device objects to enable support
+if [ ${SEV_GUEST} = "1" ]; then
+	if [ "${ALLOW_DEBUG}" = "1" ]; then
+		SEV_DEBUG_POLICY=",policy=0x0"
+	fi
+	add_opts "-object sev-guest,id=sev0${SEV_DEBUG_POLICY}"
 	add_opts "-machine memory-encryption=sev0"
 fi
 
 # if we are asked to use hugetlbfs
 [ ! -z ${USE_HUGETLBFS} ] && setup_hugetlbfs
-
-# If we are asked to redirect the serial console to network port
-if [ "${NETCONSOLE_PORT}" != "" ]; then
-	HOST_ADDR="`ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`"
-	add_opts "-chardev socket,host=$HOST_ADDR,port=$NETCONSOLE_PORT,id=gnc1,server,nowait"
-	add_opts "-device isa-serial,chardev=gnc1"
-	echo "Setting network console $HOST_ADDR:$NETCONSOLE_PORT"
-fi
 
 # if console is serial then disable graphical interface
 if [ "${CONSOLE}" = "serial" ]; then
@@ -230,12 +248,21 @@ if [ "$BR0_STATUS" != "" ]; then
 	setup_bridge_network
 fi
 
+# start gdbserver
+add_opts "-s"
+
+# add virtio ring
+if [ "$USE_VIRTIO" = "1" ]; then
+	add_opts "-device virtio-rng-pci,disable-legacy=on,iommu_platform=true"
+fi
+
 # log the console  output in stdout.log
 QEMU_CONSOLE_LOG=`pwd`/stdout.log
 
 # save the command line args into log file
 cat $QEMU_CMDLINE | tee ${QEMU_CONSOLE_LOG}
 echo | tee -a ${QEMU_CONSOLE_LOG}
+
 
 # map CTRL-C to CTRL ]
 echo "Mapping CTRL-C to CTRL-]"

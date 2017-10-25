@@ -19,28 +19,39 @@ run_cmd()
 
 fetch_kernel()
 {
-	run_cmd "mkdir -p ${BUILD_DIR}/kernel"
-	run_cmd "git clone --single-branch -b ${KERNEL_COMMIT} ${KERNEL_GIT_URL} ${BUILD_DIR}/kernel"
-	cd ${BUILD_DIR}/kernel
+	echo "Fetching $1"
+	if [ "$1" = "kvm" ]; then
+		KERNEL_COMMIT=${KVM_KERNEL_COMMIT}
+		KERNEL_GIT_URL=${KVM_GIT_URL}
+	elif [ "$1" = "tip" ]; then
+		KERNEL_COMMIT=${TIP_KERNEL_COMMIT}
+		KERNEL_GIT_URL=${TIP_GIT_URL}
+	else
+		echo "** ERROR **"
+		exit 1
+	fi
+
+	run_cmd "mkdir -p ${BUILD_DIR}/$1"
+	run_cmd "git clone --single-branch -b ${KERNEL_COMMIT} ${KERNEL_GIT_URL} ${BUILD_DIR}/$1"
 }
 
 build_kernel()
 {
-	if [ ! -d $BUILD_DIR/kernel ]; then
-		fetch_kernel
+	if [ ! -d $BUILD_DIR/$1 ]; then
+		fetch_kernel "$1"
 	fi
-	cd $BUILD_DIR/kernel
+	cd $BUILD_DIR/$1
 	cp /boot/config-$(uname -r) .config
 	sed  -ie s/CONFIG_LOCALVERSION.*/CONFIG_LOCALVERSION=\"\"/g .config
 	./scripts/config --enable CONFIG_AMD_MEM_ENCRYPT
-	./scripts/config --enable CONFIG_CRYPTO_DEV_CCP
-	./scripts/config --enable CONFIG_CRYPTO_DEV_SP_PSP
-	./scripts/config --enable CONFIG_CRYPTO_DEV_PSP_SEV
+	./scripts/config --enable CONFIG_AMD_KVM_SEV
 	./scripts/config --disable CONFIG_DEBUG_INFO
 	./scripts/config --module CRYPTO_DEV_CCP_DD
 	./scripts/config --disable CONFIG_LOCALVERSION_AUTO
 	yes "" | make olddefconfig
-	run_cmd "make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-sev"
+	run_cmd "make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-$1"
+	run_cmd "mkdir -p $OUTPUT_DIR/$1"
+	run_cmd "mv ../linux-*${1}*.deb $OUTPUT_DIR/$1"
 }
 
 fetch_ovmf()
@@ -87,12 +98,6 @@ build_qemu()
 		--prefix=$OUTPUT_DIR/qemu-output"
 	run_cmd "make -j$(getconf _NPROCESSORS_ONLN)"
 	run_cmd "make -j$(getconf _NPROCESSORS_ONLN) install"
-}
-
-finalize_output()
-{
-	run_cmd "mkdir -p $OUTPUT_DIR/kernel"
-	run_cmd "mv $BUILD_DIR/linux-* $OUTPUT_DIR/kernel"
 	run_cmd "cp $BUILD_DIR/../launch-qemu.sh $OUTPUT_DIR/qemu-output"
 }
 
@@ -103,7 +108,7 @@ dep_install ()
 }
 
 dep_install
-build_kernel
+build_kernel "kvm"
+build_kernel "tip"
 build_qemu
 build_ovmf
-finalize_output

@@ -2,10 +2,17 @@
 # stable commit for SEV test builds
 #
 
-KERNEL_GIT_URL=https://github.com/AMDESE/AMDSEV.git
-KERNEL_COMMIT=kernel-rfc-3
+# hypervisor commit
+KVM_GIT_URL=https://github.com/AMDESE/kvm.git
+KVM_KERNEL_COMMIT=sev-v6-p2+fixes
 
-QEMU_GIT_URL=https://github.com/AMDESE/AMDSEV.git
-QEMU_COMMIT=qemu-sev-rfc-v4+
+# guest kernel commit
+TIP_GIT_URL=https://github.com/AMDESE/tip.git
+TIP_KERNEL_COMMIT=sev-v7-p1
 
+# qemu commit
+QEMU_GIT_URL=https://github.com/AMDESE/qemu.git
+QEMU_COMMIT=v5-wip-1
+
+# guest bios
 EDK2_GIT_URL=https://github.com/tianocore/edk2.git   
