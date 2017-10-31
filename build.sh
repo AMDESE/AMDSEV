@@ -104,7 +104,7 @@ build_qemu()
 dep_install ()
 {
 	# install the build dependencies 
-	run_cmd "sudo apt-get -y install git build-essential zlib1g-dev libglib2.0-dev libpixman-1-dev uuid-dev nasm bison acpica-tools libncurses5-dev libssl-dev fakeroot dpkg-dev"
+	run_cmd "sudo apt-get -y install git build-essential zlib1g-dev libglib2.0-dev libpixman-1-dev uuid-dev nasm bison acpica-tools libncurses5-dev libssl-dev fakeroot dpkg-dev bc libelf-dev"
 }
 
 dep_install
