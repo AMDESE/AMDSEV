@@ -94,7 +94,7 @@ build_qemu()
 		fetch_qemu
 	fi
 	cd $BUILD_DIR/qemu
-	run_cmd "./configure --target-list=x86_64-softmmu \
+	run_cmd "./configure --target-list=x86_64-softmmu --enable-trace-backend=log\
 		--prefix=$OUTPUT_DIR/qemu-output"
 	run_cmd "make -j$(getconf _NPROCESSORS_ONLN)"
 	run_cmd "make -j$(getconf _NPROCESSORS_ONLN) install"
@@ -109,6 +109,5 @@ dep_install ()
 
 dep_install
 build_kernel "kvm"
-build_kernel "tip"
 build_qemu
 build_ovmf

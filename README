@@ -28,14 +28,14 @@ Prepare guest OS
 
 # cd /home/user/AMDSEV/output/qemu-output
 # qemu-img create -f qcow2 ubuntu-img.qcow2 30G   (create empty qcow2 file)
-# sudo ./launch-qemu.sh -hda ubuntu-img.qcow2 -nosev -cdrom <your_iso_image> -vnc 1  -novirtio
+# sudo ./launch-qemu.sh -hda ubuntu-img.qcow2 -nosev -cdrom <your_iso_image> -vnc 1
 
 The installer GUI can be accessed via vnc port 1. Follow the installation screen
 to complete the installation and reboot the guest with newly installed image.
 
 3) Install SEV aware guest kernel image
 
-SEV aware guest kernel deb packages is available in /home/user/AMDSEV/output/tip
+SEV aware guest kernel deb packages is available in /home/user/AMDSEV/output/kvm
 directory.
 
 a) Boot the guest image

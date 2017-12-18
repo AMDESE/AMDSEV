@@ -14,7 +14,7 @@ UEFI_BIOS_VARS="`pwd`/OVMF_VARS.fd"
 #VNC_PORT=""
 AUTOSTART="1"
 ALLOW_DEBUG="0"
-USE_VIRTIO="1"
+USE_VIRTIO="0"
 
 usage() {
 	echo "$0 [options]"
