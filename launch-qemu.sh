@@ -32,7 +32,7 @@ usage() {
 	echo " -cdrom        CDROM image"
 	echo " -hugetlb      use hugetlbfs"
 	echo " -allow-debug  allow debugging the VM"
-	echo " -novirtio     do not use virtio devices"
+	echo " -virtio       use virtio devices"
 	echo " -gdb          start gdbserver"
 	exit 1  
 }
@@ -155,7 +155,7 @@ while [[ $1 != "" ]]; do
 				;;
 		-allow-debug)   ALLOW_DEBUG="1"
 				;;
-		-novirtio)      USE_VIRTIO="0"
+		-virtio)        USE_VIRTIO="1"
 				;;
 		-gdb)      	USE_GDB="1"
 				;;
