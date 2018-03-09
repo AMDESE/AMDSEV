@@ -3,12 +3,12 @@
 #
 
 # hypervisor commit
-KVM_GIT_URL=https://github.com/AMDESE/kvm.git
-KVM_KERNEL_COMMIT=sev-v9-p2
+KERNEL_GIT_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+KERNEL_COMMIT=v4.16-rc4
 
 # qemu commit
 QEMU_GIT_URL=https://github.com/AMDESE/qemu.git
-QEMU_COMMIT=v6-wip-1
+QEMU_COMMIT=v12
 
 # guest bios
 EDK2_GIT_URL=https://github.com/tianocore/edk2.git   

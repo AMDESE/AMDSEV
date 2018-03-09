@@ -33,6 +33,7 @@ usage() {
 	echo " -hugetlb      use hugetlbfs"
 	echo " -allow-debug  allow debugging the VM"
 	echo " -novirtio     do not use virtio devices"
+	echo " -gdb          start gdbserver"
 	exit 1  
 }
 
@@ -88,7 +89,7 @@ setup_bridge_network() {
 	fi
 	TAP_NUM=`echo $(( TAP_NUM + 1 ))`
 	GUEST_TAP_NAME="tap${TAP_NUM}"
-	GUEST_MAC_ADDR=$(printf "02:16:1e:%02x:01:01" 0x${TAP_NUM})
+	GUEST_MAC_ADDR=$(printf '00:60:2F:%02X:%02X:%02X\n' $[RANDOM%256] $[RANDOM%256] $[RANDOM%256])
 
 	echo "Starting network adapter '${GUEST_TAP_NAME}' MAC=$GUEST_MAC_ADDR"
 	run_cmd "ip tuntap add $GUEST_TAP_NAME mode tap user `whoami`"
@@ -156,6 +157,8 @@ while [[ $1 != "" ]]; do
 				;;
 		-novirtio)      USE_VIRTIO="0"
 				;;
+		-gdb)      	USE_GDB="1"
+				;;
 		*) 		usage;;
 	esac
 	shift
@@ -211,7 +214,7 @@ if [ ${SEV_GUEST} = "1" ]; then
 	if [ "${ALLOW_DEBUG}" = "1" ]; then
 		SEV_DEBUG_POLICY=",policy=0x0"
 	fi
-	add_opts "-object sev-guest,id=sev0${SEV_DEBUG_POLICY}"
+	add_opts "-object sev-guest,id=sev0${SEV_DEBUG_POLICY},cbitpos=47,reduced-phys-bits=1"
 	add_opts "-machine memory-encryption=sev0"
 fi
 
@@ -249,7 +252,7 @@ if [ "$BR0_STATUS" != "" ]; then
 fi
 
 # start gdbserver
-add_opts "-s"
+[ ! -z ${USE_GDB} ] && add_opts "-s"
 
 # add virtio ring
 if [ "$USE_VIRTIO" = "1" ]; then
