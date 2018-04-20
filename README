@@ -61,3 +61,6 @@ To launch SEV enabled guest, use:
 # sudo ./launch-qemu.sh -hda <your disk image>
 
 NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
+
+NOTE: The SEV specification is available at
+http://developer.amd.com/wordpress/media/2017/11/55766_SEV-KM API_Specification.pdf
