@@ -4,7 +4,7 @@
 
 # hypervisor commit
 KERNEL_GIT_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-KERNEL_COMMIT=v4.16
+KERNEL_COMMIT=v4.17
 
 # qemu commit
 QEMU_GIT_URL=http://git.qemu.org/git/qemu.git
@@ -12,3 +12,7 @@ QEMU_COMMIT=v2.12.0
 
 # guest bios
 EDK2_GIT_URL=https://github.com/tianocore/edk2.git
+
+# libvirt commit
+LIBVIRT_GIT_URL=https://libvirt.org/git/libvirt.git
+LIBVIRT_COMMIT=v4.5.0
