@@ -16,6 +16,8 @@
 * [ FAQ ](#faq)
   * [ How do I know if Hypervisor supports SEV ](#faq-1)
   * [ How do I know if SEV is enabled in the guest](#faq-2)
+  * [ Can I use virt-manager to launch SEV guest](#faq-3)
+  
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
@@ -274,7 +276,7 @@ for additional information.
    
      > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
   
-  <a name="faq-2"></a>
+<a name="faq-2"></a>
  * <b>How do I know if SEV is enabled in the guest ?</b>
  
    a) Check the kernel log buffer for the following message
@@ -292,3 +294,10 @@ for additional information.
    Bit[0]:   0 = SEV is not active
              1 = SEV is active
    </pre>
+
+<a name="faq-3"></a>
+ * <b>Can I use virt-manager to launch SEV guest?</b>
+
+    virt-manager uses libvirt to manage VMs, SEV support has been added in libvirt but virt-manager does use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet hence we will not able to launch SEV guest through the virt-manager.
+    > If your system is using libvirt >= 4.15 then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable the SEV support in the guest.
+    
