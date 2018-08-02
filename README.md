@@ -12,8 +12,10 @@
   * [ Prepare Host OS ](#ubuntu18-host)
   * [ Prepare VM ](#ubuntu18-prep-vm)
   * [ Launch SEV VM ](#ubuntu18-launch-vm)
- * [ Additional resources ](#resources)
- 
+* [ Additional resources ](#resources)
+* [ FAQ ](#faq)
+  * [ How do I know if Hypervisor supports SEV ](#faq-1)
+  * [ How do I know if SEV is enabled in the guest](#faq-2)
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
@@ -252,3 +254,38 @@ NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the 
 
 [Qemu doc](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
 
+<a name="faq"></a>
+# FAQ
+
+<a name="faq-1"></a>
+ * How do I know if hypervisor supports SEV feature ?
+   
+   a) When using libvirt >= 4.15 run the following command
+   
+   ```
+   # virsh domcapabilities
+   ```
+   If hypervisor supports SEV feature then <b>sev</b> tag will be present. See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV)
+for additional information.
+ 
+   b) Use qemu QMP 'query-sev-capabilities' command to check the SEV support. If SEV is supported then command will return the full SEV capabilities (which includes host PDH, cert-chain, cbitpos and reduced-phys-bits).
+   
+     > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
+  
+  <a name="faq-2"></a>
+ * How do I know if SEV is enabled in the guest ?
+ 
+   a) Check the kernel log buffer for the following message
+   ```
+   # dmesg | grep -i sev
+   AMD Secure Encrypted Virtualization (SEV) active
+   ```
+   
+   b) MSR 0xc0010131 (MSR_AMD64_SEV) can be used to determine if SEV is active
+   
+   ```
+   # rdmsr -a 0xc0010131
+   
+   Bit[0]   0 = SEV is not active
+            1 = SEV is active
+   ```
