@@ -258,14 +258,16 @@ NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the 
 # FAQ
 
 <a name="faq-1"></a>
- * How do I know if hypervisor supports SEV feature ?
+ * <b>How do I know if hypervisor supports SEV feature ?</b>
    
    a) When using libvirt >= 4.15 run the following command
    
    ```
    # virsh domcapabilities
    ```
-   If hypervisor supports SEV feature then <b>sev</b> tag will be present. See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV)
+   If hypervisor supports SEV feature then <b>sev</b> tag will be present.
+   
+   >See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV)
 for additional information.
  
    b) Use qemu QMP 'query-sev-capabilities' command to check the SEV support. If SEV is supported then command will return the full SEV capabilities (which includes host PDH, cert-chain, cbitpos and reduced-phys-bits).
@@ -273,7 +275,7 @@ for additional information.
      > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
   
   <a name="faq-2"></a>
- * How do I know if SEV is enabled in the guest ?
+ * <b>How do I know if SEV is enabled in the guest ?</b>
  
    a) Check the kernel log buffer for the following message
    ```
@@ -285,7 +287,8 @@ for additional information.
    
    ```
    # rdmsr -a 0xc0010131
-   
-   Bit[0]   0 = SEV is not active
-            1 = SEV is active
    ```
+   <pre>
+   Bit[0]:   0 = SEV is not active
+             1 = SEV is active
+   </pre>
