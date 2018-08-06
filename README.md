@@ -12,6 +12,9 @@
   * [ Prepare Host OS ](#ubuntu18-host)
   * [ Prepare VM ](#ubuntu18-prep-vm)
   * [ Launch SEV VM ](#ubuntu18-launch-vm)
+* [ Opensuse-Tumbleweed](#tumbleweed)
+  * [ Prepare Host OS ](#tumbleweed-host)
+  * [ Launch SEV VM ](#tumbleweed-launch-vm)
 * [ Additional resources ](#resources)
 * [ FAQ ](#faq)
   * [ How do I know if Hypervisor supports SEV ](#faq-1)
@@ -233,6 +236,78 @@ Use the following command to launch SEV guest
 ```
 NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
 
+<a name="tumbleweed"></a>
+## Opensuse-Tumbleweed
+
+Latest version of OpenSuse Tumbleweed distro contains all the pre-requisite packages to launch an SEV guest. But the SEV feature is not enabled by default, this section documents how to enable the SEV feature.
+
+<a name="tumbleweed-host"></a>
+### Prepare Host OS
+
+* Add new udev rule for the /dev/sev device
+  
+  ```
+  # cat /etc/udev/rules.d/71-sev.rules
+  KERNEL=="sev", MODE="0666", GROUP="kvm"
+  ```
+* Clean libvirt caches so that on restart libvirt re-generates the capabilities
+
+  ```
+  # rm -rf /var/cache/libvirt/qemu/capabilities/
+  # systemctl restart libvirtd
+  ```
+* SEV feature is not enabled in kernel by default, lets enable it through kernel command line:
+
+  Append the following in /etc/defaults/grub
+  ```
+   GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+  ```
+  Regenerate grub.cfg and reboot the host
+
+  ```
+  # grub2-mkconfig -o /boot/efi/EFI/opensuse/grub.cfg
+  # reboot
+  ```
+  
+<a name="tumbleweed-launch-vm"></a>  
+### Launch SEV VM
+
+Since virt-manager does not support SEV yet hence we need to use 'virsh' command to launch the SEV guest. See xmls/sample.xml on how to add SEV specific information in existing xml. Use the following command to launch SEV guest
+
+```
+# virsh create sample.xml
+```
+
+> The sample xml was generated through virt-manager and then edited with SEV specific information. The main changes are:
+>
+>* For virtio devices we need to enable DMA APIs. The DMA APIs are enable through <b><driver iommu='on'/></b> (aka iommu_platform=on) tag
+
+```
+    <controller type='virtio-serial' index='0'> 
+      <driver iommu='on' /> 
+      <alias name='virtio-serial0'/>
+      <address type='pci' domain='0x0000' bus='0x02' slot='0x00' function='0x0'/> 
+    </controller>
+ ``` 
+> * Add LaunchSecurity tag to tell libvirt to enable memory-encryption
+
+```
+    <launchSecurity type='sev'>
+      <policy>0x0001</policy>
+      <cbitpos>47</cbitpos>
+      <reducedPhysBits>1</reducedPhysBits>
+    </launchSecurity>
+```
+
+> * QEMU pins the guest memory during the SEV guest launch hence we need to set the domain specific memory parameters to raise the memlock rlimits. e.g the below <b>memtune</b> tags raise the memlock limit to 5GB.
+
+```
+    <memtune>
+      <hard_limit unit='G'>5</hard_limit>
+      <soft_limit unit='G'>5</soft_limit>
+    </memtune>  
+```
+  
 <a name="resources"></a>
 # Additional Resources
 
