@@ -12,7 +12,7 @@
   * [ Prepare Host OS ](#ubuntu18-host)
   * [ Prepare VM ](#ubuntu18-prep-vm)
   * [ Launch SEV VM ](#ubuntu18-launch-vm)
-* [ Opensuse-Tumbleweed](#tumbleweed)
+* [ openSuse-Tumbleweed](#tumbleweed)
   * [ Prepare Host OS ](#tumbleweed-host)
   * [ Launch SEV VM ](#tumbleweed-launch-vm)
 * [ Additional resources ](#resources)
@@ -237,9 +237,9 @@ Use the following command to launch SEV guest
 NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
 
 <a name="tumbleweed"></a>
-## Opensuse-Tumbleweed
+## openSUSE-Tumbleweed
 
-Latest version of OpenSuse Tumbleweed distro contains all the pre-requisite packages to launch an SEV guest. But the SEV feature is not enabled by default, this section documents how to enable the SEV feature.
+Latest version of openSUSE Tumbleweed distro contains all the pre-requisite packages to launch an SEV guest. But the SEV feature is not enabled by default, this section documents how to enable the SEV feature.
 
 <a name="tumbleweed-host"></a>
 ### Prepare Host OS
