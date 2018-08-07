@@ -196,12 +196,15 @@ hypervisor hence we will build and install newer kernel, qemu, ovmf.
 <a name="ubuntu18-host"></a>
 ### Prepare Host OS
 
-Build and install newer components
+* Enable source repositories [See](https://askubuntu.com/questions/158871/how-do-i-enable-the-source-code-repositories)
+
+* Build and install newer components
 
 ```
 # cd distros/ubuntu-18.04
 # ./build.sh
 ```
+
 <a name="ubuntu18-prep-vm"></a>
 ### Prepare VM image
 
