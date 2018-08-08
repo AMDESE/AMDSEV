@@ -20,7 +20,8 @@
   * [ How do I know if Hypervisor supports SEV ](#faq-1)
   * [ How do I know if SEV is enabled in the guest](#faq-2)
   * [ Can I use virt-manager to launch SEV guest](#faq-3)
-  
+  * [ How to increase SWIOTLB limit](#faq-4)
+  * [ virtio-blk fails with out-of-dma-buffer error](#faq-5)  
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
@@ -378,4 +379,22 @@ for additional information.
 
     virt-manager uses libvirt to manage VMs, SEV support has been added in libvirt but virt-manager does use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet hence we will not able to launch SEV guest through the virt-manager.
     > If your system is using libvirt >= 4.15 then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable the SEV support in the guest.
-    
+
+<a name="faq-4"></a>
+ * <b>How to increase SWIOTLB limit ?</b>
+ 
+ When SEV is enabled, all the DMA operations inside the guest are performed on the shared memory. Linux kernel uses SWIOTLB  bounce buffer for DMA operations inside SEV guest. A guest panic will occur if kernel runs out of the SWIOTLB pool. Linux kernel default to 64MB SWIOTLB pool. It is recommended to increase the swiotlb pool size to 512MB. The swiotlb pool size can be increased in guest by appending the following in the grub.cfg file
+ 
+ Append the following in /etc/defaults/grub
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
+```
+
+And regenerate the grub.cfg.
+
+<a name="faq-5"></a>
+ * <b>virtio-blk device runs out-of-dma-buffer error </b>
+ 
+ To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
+ 
