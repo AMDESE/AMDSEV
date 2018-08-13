@@ -253,7 +253,7 @@ Latest version of openSUSE Tumbleweed distro contains all the pre-requisite pack
   
   ```
   # cat /etc/udev/rules.d/71-sev.rules
-  KERNEL=="sev", MODE="0666", GROUP="kvm"
+  KERNEL=="sev", MODE="0660", GROUP="kvm"
   ```
 * Clean libvirt caches so that on restart libvirt re-generates the capabilities
 
