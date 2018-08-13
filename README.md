@@ -83,10 +83,11 @@ Regenerate grub.cfg and reboot the host
 # reboot
 ```
 
-Install the qemu launch script
+Install the qemu launch script. The launch script can be obtained from this project.
 
 ```
-# cd distros/sles-15
+# git clone https://github.com/AMDESE/AMDSEV.git
+# cd AMDSEV/distros/sles-15
 # ./build.sh
 ```
 <a name="sles-15-prep-vm"></a>
