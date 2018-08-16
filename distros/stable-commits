@@ -16,3 +16,7 @@ EDK2_GIT_URL=https://github.com/tianocore/edk2.git
 # libvirt commit
 LIBVIRT_GIT_URL=https://libvirt.org/git/libvirt.git
 LIBVIRT_COMMIT=v4.5.0
+
+# kata forks
+KATA_KERNEL_GIT_URL=https://github.com/AMDESE/linux.git
+KATA_KERNEL_COMMIT=sev
