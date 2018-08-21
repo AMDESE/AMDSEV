@@ -3,15 +3,15 @@
 . ../common.sh
 
 # Build/install the SEV kernel/BIOS/qemu
-${BUILD_DIR}/../build.sh
+run_cmd "${BUILD_DIR}/../build.sh"
 
 # Install additional tools
-run_cmd "apt-get install sudo curl systemd"
+run_cmd "apt-get -y install sudo curl systemd"
 
 # Install Go 1.8.3+
-run_cmd "apt-get install golang-1.8"
-GOPATH=$HOME/go
-PATH=$PATH:/usr/lib/go-1.8/bin:$GOPATH/bin
+#run_cmd "apt-get -y install golang-1.8"
+#GOPATH=$HOME/go
+#PATH=$PATH:/usr/lib/go-1.8/bin:$GOPATH/bin
 
 # install kata containers
 install_kata

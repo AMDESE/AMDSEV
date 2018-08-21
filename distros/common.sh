@@ -92,12 +92,20 @@ install_kata()
 {
 	# Install the packaged kata binaries using kata-manager
 	repo="github.com/kata-containers/tests"
-	run_cmd "go get -d $repo"
-	PATH=$PATH:$GOPATH/src/${repo}/cmd/kata-manager
+        [ ! -d ${BUILD_DIR}/tests ] && run_cmd "git clone https://$repo.git ${BUILD_DIR}/tests"
+        pushd ${BUILD_DIR}/tests
+	PATH=${PATH}:${BUILD_DIR}/tests/.ci
+	go_dir=/usr/local
+        run_cmd "install_go.sh -d ${go_dir} 1.8"
+        GOPATH=${HOME}/go
+	PATH=${PATH}:${GOPATH}/bin:${go_dir}/go/bin:${BUILD_DIR}/tests/cmd/kata-manager
+        run_cmd "go get -d $repo"
 	run_cmd "kata-manager.sh install-docker-system"
+        popd
 
 	# Build the kata-runtime with SEV support
-	go get -u github.com/golang/dep/cmd/dep
+	#go get github.com/golang/dep/cmd/dep
+	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 	go get -d github.com/AMDESE/runtime
 	pushd $GOPATH/src/github.com/AMDESE/runtime
 	run_cmd "git checkout -b sev-v1.1.0 origin/sev-v1.1.0"
@@ -154,6 +162,9 @@ build_kata_kernel()
 	./scripts/config --enable CONFIG_CRYPTO_DEV_CCP
 	./scripts/config --disable CONFIG_LOCALVERSION_AUTO
 	./scripts/config --enable CONFIG_X86_PAT
+	./scripts/config --disable CONFIG_CPU_SUP_INTEL
+	./scripts/config --enable CONFIG_CPU_SUP_AMD
+	./scripts/config --enable CONFIG_GENERIC_CPU
 	yes "" | make olddefconfig
 	run_cmd "make ARCH=x86_64 -j `getconf _NPROCESSORS_ONLN` LOCALVERSION=-${KATA_KERNEL_COMMIT}.container"
 	run_cmd "cp vmlinux /usr/share/kata-containers/vmlinux-${KATA_KERNEL_COMMIT}.container"
@@ -173,11 +184,13 @@ configure_kata_runtime()
 			"s/\(--add-runtime kata-runtime=[^ ]*kata-runtime\)/\1 --add-runtime sev-runtime=${runtime}/" ${config_file}
 		sudo sed -i -e "s/--default-runtime=kata-runtime/--default-runtime=sev-runtime/" ${config_file}
 		echo "Done."
-		run_cmd "echo sudo systemctl restart docker"
+		run_cmd "sudo systemctl daemon-reload"
+		run_cmd "sudo systemctl restart docker"
 	fi
 
 	config_file=/usr/share/defaults/kata-containers/configuration.toml
-	sev_qemu="\/usr\/local\/qemu-system-x86_64"
+	sev_qemu="\/usr\/local\/bin\/qemu-system-x86_64"
+	sev_machine="q35"
 	sev_kernel="\/usr\/share\/kata-containers\/vmlinuz-sev.container"
 	sev_kernel_params="root=\/dev\/vda1 rootflags=data=ordered,errors=remount\-ro"
 	sev_firmware="\/usr\/local\/share\/qemu\/OVMF_CODE\.fd"
@@ -189,6 +202,9 @@ configure_kata_runtime()
 
 	# Set the SEV qemu
 	sudo sed -i "s/^path *=.*qemu.*\$/path = \"${sev_qemu}\"/g" $config_file
+
+	# Set the SEV qemu
+	sudo sed -i "s/^machine_type *=.*\$/machine_type = \"${sev_machine}\"/g" $config_file
 
 	# Set the SEV kernel
 	sudo sed -i "s/^kernel *=.*\$/kernel = \"${sev_kernel}\"/g" $config_file
