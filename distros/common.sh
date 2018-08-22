@@ -42,7 +42,7 @@ build_kernel()
 install_kernel()
 {
 	pushd $BUILD_DIR
-	run_cmd "dpkg -i *.deb"
+	run_cmd "sudo dpkg -i *.deb"
 	popd
 }
 
@@ -68,9 +68,9 @@ build_install_ovmf()
 		-DSMM_REQUIRE \
 		-DSECURE_BOOT_ENABLE=TRUE \
 	        -p OvmfPkg/OvmfPkgIa32X64.dsc"
-	run_cmd "mkdir -p /usr/local/share/qemu"
-	run_cmd "cp Build/Ovmf3264/DEBUG_GCC5/FV/OVMF_CODE.fd $*"
-	run_cmd "cp Build/Ovmf3264/DEBUG_GCC5/FV/OVMF_VARS.fd $*"
+	run_cmd "sudo mkdir -p /usr/local/share/qemu"
+	run_cmd "sudo cp Build/Ovmf3264/DEBUG_GCC5/FV/OVMF_CODE.fd $*"
+	run_cmd "sudo cp Build/Ovmf3264/DEBUG_GCC5/FV/OVMF_VARS.fd $*"
 	popd
 }
 
@@ -84,7 +84,7 @@ build_install_qemu()
 	pushd $BUILD_DIR/qemu
 	run_cmd "./configure --target-list=x86_64-softmmu --prefix=$*"
 	run_cmd "make -j$(getconf _NPROCESSORS_ONLN)"
-	run_cmd "make -j$(getconf _NPROCESSORS_ONLN) install"
+	run_cmd "sudo make -j$(getconf _NPROCESSORS_ONLN) install"
 	popd
 }
 
@@ -96,16 +96,16 @@ install_kata()
         pushd ${BUILD_DIR}/tests
 	PATH=${PATH}:${BUILD_DIR}/tests/.ci
 	go_dir=/usr/local
-        run_cmd "install_go.sh -d ${go_dir} 1.8"
+        run_cmd "sudo install_go.sh -d ${go_dir} 1.8"
         GOPATH=${HOME}/go
 	PATH=${PATH}:${GOPATH}/bin:${go_dir}/go/bin:${BUILD_DIR}/tests/cmd/kata-manager
         run_cmd "go get -d $repo"
-	run_cmd "kata-manager.sh install-docker-system"
+	run_cmd "sudo kata-manager.sh install-docker-system"
         popd
 
 	# Build the kata-runtime with SEV support
 	#go get github.com/golang/dep/cmd/dep
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+	sudo curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 	go get -d github.com/AMDESE/runtime
 	pushd $GOPATH/src/github.com/AMDESE/runtime
 	run_cmd "git checkout -b sev-v1.1.0 origin/sev-v1.1.0"
@@ -167,8 +167,8 @@ build_kata_kernel()
 	./scripts/config --enable CONFIG_GENERIC_CPU
 	yes "" | make olddefconfig
 	run_cmd "make ARCH=x86_64 -j `getconf _NPROCESSORS_ONLN` LOCALVERSION=-${KATA_KERNEL_COMMIT}.container"
-	run_cmd "cp vmlinux /usr/share/kata-containers/vmlinux-${KATA_KERNEL_COMMIT}.container"
-	run_cmd "cp arch/x86_64/boot/bzImage /usr/share/kata-containers/vmlinuz-${KATA_KERNEL_COMMIT}.container"
+	run_cmd "sudo cp vmlinux /usr/share/kata-containers/vmlinux-${KATA_KERNEL_COMMIT}.container"
+	run_cmd "sudo cp arch/x86_64/boot/bzImage /usr/share/kata-containers/vmlinuz-${KATA_KERNEL_COMMIT}.container"
 	popd
 }
 
