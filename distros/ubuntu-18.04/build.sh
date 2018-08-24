@@ -5,6 +5,7 @@
 # build linux kernel image
 run_cmd "apt-get build-dep linux-image-$(uname -r)"
 run_cmd "apt-get install flex"
+run_cmd "apt-get install bison"
 build_kernel
 
 # install newly built kernel
