@@ -228,7 +228,7 @@ build_kata_kernel()
 		run_cmd "git checkout kata/${KATA_KERNEL_COMMIT}"
 	fi
 
-	run_cmd "cp $BUILD_DIR/packaging/kernel/configs/x86_64* .config"
+	run_cmd "cp $BUILD_DIR/packaging/kernel/configs/x86_64_kata_kvm_* .config"
 	./scripts/config --enable CONFIG_AMD_MEM_ENCRYPT
 	./scripts/config --enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
 	./scripts/config --enable CONFIG_KVM_AMD_SEV
