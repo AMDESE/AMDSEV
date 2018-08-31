@@ -150,24 +150,41 @@ build_install_kata_qemu()
 
 install_kata()
 {
+	# If a kata config file exists, back it up
+	config_file=/etc/kata-containers/configuration.toml
+	[ -f ${config_file} ] && run_cmd "sudo mv ${config_file} ${config_file}.orig"
+
+	# The default kata config is not bootable until the user chooses
+	# how to pass the container roorfs. If a default kata config
+	# exists, then make it bootable using the initrd image by
+	# removing the 'image' line
+	default_config=/usr/share/defaults/kata-containers/configuration.toml
+	[ -f ${default_config} ] && sudo sed -i "s/^\(image =.*\)/# \1/g" ${default_config}
+
 	# Install the packaged kata binaries using kata-manager
 	repo="github.com/kata-containers/tests"
         [ ! -d ${BUILD_DIR}/tests ] && run_cmd "git clone https://$repo.git ${BUILD_DIR}/tests"
         pushd ${BUILD_DIR}/tests
 	PATH=${PATH}:${BUILD_DIR}/tests/.ci
 	go_dir=/usr/local
-        run_cmd "sudo install_go.sh -d ${go_dir} 1.8"
+        run_cmd "sudo env PATH=${PATH} install_go.sh -d ${go_dir} 1.8"
         GOPATH=${HOME}/go
 	PATH=${PATH}:${GOPATH}/bin:${go_dir}/go/bin:${BUILD_DIR}/tests/cmd/kata-manager
         run_cmd "go get -d $repo"
-	run_cmd "sudo kata-manager.sh install-docker-system"
+	run_cmd "sudo env PATH=${PATH} kata-manager.sh install-docker-system"
         popd
 
 	# Build the kata-runtime with SEV support
 	sudo curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 	go get -d github.com/AMDESE/runtime
 	pushd $GOPATH/src/github.com/AMDESE/runtime
-	run_cmd "git checkout -b sev-v1.1.0 origin/sev-v1.1.0"
+	BRANCH="sev-v1.1.0"
+	if git branch | grep ${BRANCH}; then
+		run_cmd "git checkout ${BRANCH}"
+		run_cmd "git checkout Gopkg.toml"
+	else
+		run_cmd "git checkout -b ${BRANCH} origin/${BRANCH}"
+	fi
 	cat >> Gopkg.toml <<- EOF
 
 	[[override]]
@@ -236,7 +253,7 @@ configure_kata_runtime()
 	runtime="\/usr\/local\/bin\/kata-runtime"
 
 	# Configure docker to use the SEV runtime
-	if [ -w ${config_file} ]; then
+	if [ -f ${config_file} ]; then
 		echo -n "Configuring ${config_file} for SEV..."
 		sudo sed -i -e \
 			"s/\(--add-runtime kata-runtime=[^ ]*kata-runtime\)/\1 --add-runtime sev-runtime=${runtime}/" ${config_file}
