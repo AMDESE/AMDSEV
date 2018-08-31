@@ -8,7 +8,7 @@ KERNEL_COMMIT=v4.17
 
 # qemu commit
 QEMU_GIT_URL=http://git.qemu.org/git/qemu.git
-QEMU_COMMIT=v2.12.0
+QEMU_COMMIT=v3.0.0
 
 # guest bios
 EDK2_GIT_URL=https://github.com/tianocore/edk2.git
