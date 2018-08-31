@@ -5,7 +5,7 @@
 # host setup
 SRC_LIST=/etc/apt/sources.list.d/amdsev.list
 run_cmd "mkdir -p ${BUILD_DIR}"
-grep deb-src /etc/apt/sources.list | sudo tee ${SRC_LIST}
+grep deb-src /etc/apt/sources.list | grep -v "arch=amd64" | sudo tee ${SRC_LIST}
 sudo sed -i -e "s/^\#\ *deb-src/deb-src/g" ${SRC_LIST}
 run_cmd "sudo apt-get update"
 
@@ -27,4 +27,4 @@ run_cmd "sudo apt-get -y build-dep ovmf"
 build_install_ovmf "/usr/local/share/qemu"
 
 run_cmd "sudo cp ../launch-qemu.sh /usr/local/bin"
-[ -r ${SRC_LIST} ] && run_cmd "sudo rm ${SRC_LIST}"
+[ -f ${SRC_LIST} ] && run_cmd "sudo rm -f ${SRC_LIST}"
