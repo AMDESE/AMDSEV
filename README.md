@@ -1,25 +1,15 @@
 # Table of contents
 * [ Introduction ](#intro)
-* [ SLES-15 ](#sles-15)
-  * [ Prepare Host OS ](#sles-15-host)
-  * [ Prepare VM ](#sles-15-prep-vm)
-  * [ Launch SEV VM ](#sles-15-launch-vm)
-* [ Fedora-28 ](#fc-28)
-  * [ Prepare Host OS ](#fc-28-host)
-  * [ Prepare VM ](#fc-28-prep-vm)
-  * [ Launch SEV VM ](#fc-28-launch-vm)
+* [ Kata Containers with SEV ](#kata-sev)
 * [ Ubuntu-18.04 ](#ubuntu18)
-  * [ Prepare Host OS ](#ubuntu18-host)
-  * [ Prepare VM ](#ubuntu18-prep-vm)
-  * [ Launch SEV VM ](#ubuntu18-launch-vm)
-* [ openSuse-Tumbleweed](#tumbleweed)
-  * [ Prepare Host OS ](#tumbleweed-host)
-  * [ Launch SEV VM ](#tumbleweed-launch-vm)
+  * [ Prepare Host OS ](#ubuntu18-kata-host)
+  * [ Install Kata ](#ubuntu18-kata-install)
+  * [ Launch SEV Container ](#ubuntu18-kata-launch)
 * [ Additional resources ](#resources)
 * [ FAQ ](#faq)
-  * [ How do I know if Hypervisor supports SEV ](#faq-1)
+  * [ How do I know if my Hypervisor supports SEV ](#faq-1)
   * [ How do I know if SEV is enabled in the guest](#faq-2)
-  * [ Can I use virt-manager to launch SEV guest](#faq-3)
+  * [ Can I use virt-manager to launch SEV guests](#faq-3)
   * [ How to increase SWIOTLB limit](#faq-4)
   * [ virtio-blk fails with out-of-dma-buffer error](#faq-5)  
   
@@ -30,289 +20,83 @@ SEV is an extension to the AMD-V architecture which supports running encrypted
 virtual machine (VMs) under the control of KVM. Encrypted VMs have their pages
 (code and data) secured such that only the guest itself has access to the
 unencrypted version. Each encrypted VM is associated with a unique encryption
-key; if its data is accessed to a different entity using a different key the
-encrypted guests data will be incorrectly decrypted, leading to unintelligible
-data. 
+key; if the guest data is accessed from a different entity using a different key,
+then the encrypted guest's data will be incorrectly decrypted into unintelligible
+data.
 
 SEV support has been accepted in upstream projects. This repository provides
 scripts to build various components to enable SEV support until the distros
-pick the newer version of components.
+include the newer versions.
 
-To enable the SEV support we need the following versions.
+<a name="kata-sev"></a>
+# Kata Containers with SEV
+
+To enable SEV support with Kata Containers, the following component versions are required:
 
 | Project       | Version                              |
-| ------------- |:------------------------------------:|
-| kernel        | >= 4.16                              |
-| libvirt       | >= 4.5                               |
-| qemu          | >= 2.12                              |
+|---------------|--------------------------------------|
+| kernel        | >= 4.17                              |
+| qemu          | >= 3.0                               |
 | ovmf          | >= commit (75b7aa9528bd 2018-07-06 ) |
 
-> * Installing newer libvirt may conflict with existing setups hence script does
->   not install the newer version of libvirt. If you are interested in launching
->   SEV guest through the virsh commands then build and install libvirt 4.5 or
->   higher. Use LaunchSecurity tag https://libvirt.org/formatdomain.html#sev for
->   creating the SEV enabled guest.
->
-> * SEV support is not available in SeaBIOS. Guest must use OVMF.
-
-<a name="sles-15"></a>
-
-## SLES-15
-
-SUSE Linux Enterprise Server 15 GA includes the SEV support; we do not need
-to compile the sources.
-
-> SLES-15 does not contain the updated libvirt packages yet hence we will
-use QEMU command line interface to launch VMs.
-
-<a name="sles-15-host"></a>
-### Prepare Host OS
-
-SEV is not enabled by default, lets enable it through kernel command line:
-
-Append the following in /etc/defaults/grub
-
-```
-GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
-```
-
-Regenerate grub.cfg and reboot the host
-
-```
-# grub2-mkconfig -o /boot/efi/EFI/sles/grub.cfg
-# reboot
-```
-
-Install the qemu launch script. The launch script can be obtained from this project.
-
-```
-# git clone https://github.com/AMDESE/AMDSEV.git
-# cd AMDSEV/distros/sles-15
-# ./build.sh
-```
-<a name="sles-15-prep-vm"></a>
-### Prepare VM image
-
-Create empty virtual disk image
-
-```
-# qemu-img create -f qcow2 sles-15.qcow2 30G
-```
-
-Create a new copy of OVMF_VARS.fd. The OVMF_VARS.fd is a "template" used
-to emulate persistent NVRAM storage. Each VM needs a private, writable
-copy of VARS.fd.
-
-```
-#cp /usr/share/qemu/ovmf-x86_64-suse-4m-vars.bin OVMF_VARS.fd 
-```
-
-Download and install sles-15 guest
-
-```
-# launch-qemu.sh -hda sles-15.qcow2 -cdrom SLE-15-Installer-DVD-x86_64-GM-DVD1.iso -nosev
-```
-Follow the screen to complete the guest installation.
-
-<a name="sles-15-launch-vm"></a>
-### Launch VM
-
-Use the following command to launch SEV guest
-
-```
-# launch-qemu.sh -hda sles-15.qcow2
-```
-NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
-
-<a name="fc-28"></a>
-## Fedora-28
-
-Fedora-28 includes newer kernel and ovmf packages but has older qemu. We will need to update the QEMU to launch SEV guest.
-
-<a name="fc-28-host"></a>
-### Prepare Host OS
-
-SEV is not enabled by default, lets enable it through kernel command line:
-
-Append the following in /etc/defaults/grub
-
-```
-GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
-```
-
-Regenerate grub.cfg and reboot the host
-
-```
-# grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
-# reboot
-```
-
-Build and install newer qemu
-
-```
-# cd distros/fedora-28
-# ./build.sh
-```
-
-<a name="fc-28-prep-vm"></a>
-### Prepare VM image
-
-Create empty virtual disk image
-
-```
-# qemu-img create -f qcow2 fedora-28.qcow2 30G
-```
-
-Create a new copy of OVMF_VARS.fd. The OVMF_VARS.fd is a "template" used
-to emulate persistent NVRAM storage. Each VM needs a private, writable
-copy of VARS.fd.
-
-```
-# cp /usr/share/OVMF/OVMF_VARS.fd OVMF_VARS.fd
-```
-
-Download and install fedora-28 guest
-
-```
-# launch-qemu.sh -hda fedora-28.qcow2 -cdrom  Fedora-Workstation-netinst-x86_64-28-1.1.iso
-```
-Follow the screen to complete the guest installation.
-
-<a name="fc-28-launch-vm"></a>
-### Launch VM
-
-Use the following command to launch SEV guest
-
-```
-# launch-qemu.sh -hda fedora-28.qcow2
-```
-
-NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
+> NOTE: SEV support is not available in SeaBIOS. Guests must use OVMF.
 
 <a name="ubuntu18"></a>
 ## Ubuntu 18.04
 
-Ubuntu 18.04 does not includes the newer version of components to be used as SEV
-hypervisor hence we will build and install newer kernel, qemu, ovmf.
+The packaged versions of the Linux kernel, qemu, and OVMF in Ubuntu 18.04 do not yet support SEV, so it is necessary to build them from source.
 
-<a name="ubuntu18-host"></a>
+<a name="ubuntu18-kata-host"></a>
 ### Prepare Host OS
 
-* Enable source repositories [See](https://askubuntu.com/questions/158871/how-do-i-enable-the-source-code-repositories)
+The **build.sh** script in the distros/ubuntu-18.04 directory will build and install SEV-capable versions of the host kernel, qemu, and OVMF:
 
-* Build and install newer components
-
-```
-# cd distros/ubuntu-18.04
-# ./build.sh
-```
-
-<a name="ubuntu18-prep-vm"></a>
-### Prepare VM image
-
-Create empty virtual disk image
+> NOTE: build.sh will use 'sudo' as necessary to gain privileges to install files, so build.sh should be run as a normal user.
 
 ```
-# qemu-img create -f qcow2 ubuntu-18.04.qcow2 30G
+$ cd distros/ubuntu-18.04
+$ ./build.sh
 ```
 
-Create a new copy of OVMF_VARS.fd. The OVMF_VARS.fd is a "template" used
-to emulate persistent NVRAM storage. Each VM needs a private, writable
-copy of VARS.fd.
+Once the kernel has been installed, reboot and choose the SEV kernel:
 
 ```
-# cp /usr/local/share/qemu/OVMF_VARS.fd OVMF_VARS.fd
+$ sudo reboot
 ```
 
-Install ubuntu-18.04 guest
+At this point, the host is ready to act as a SEV-capable hypervisor. For more information about running SEV guests, see [README.md](https://github.com/AMDESE/AMDSEV/blob/master/README.md) in the master branch.
+
+<a name="ubuntu18-kata-install"></a>
+### Install Kata
+
+Once the host is running an SEV-capable kernel, execute **build-kata.sh** in distros/ubuntu-18.04 to build, install, and configure the Kata Containers system along with the latest version of Docker CE:
+
+> NOTE: build-kata.sh will use 'sudo' as necessary to gain privileges to install files, so build-kata.sh should be run as a normal user.
 
 ```
-# launch-qemu.sh -hda ubuntu-18.04.qcow2 -cdrom ubuntu-18.04-desktop-amd64.iso
-```
-Follow the screen to complete the guest installation.
-
-<a name="ubuntu18-launch-vm"></a>
-### Launch VM
-
-Use the following command to launch SEV guest
-
-```
-# launch-qemu.sh -hda ubuntu-18.04.qcow2
-```
-NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
-
-<a name="tumbleweed"></a>
-## openSUSE-Tumbleweed
-
-Latest version of openSUSE Tumbleweed distro contains all the pre-requisite packages to launch an SEV guest. But the SEV feature is not enabled by default, this section documents how to enable the SEV feature.
-
-<a name="tumbleweed-host"></a>
-### Prepare Host OS
-
-* Add new udev rule for the /dev/sev device
-  
-  ```
-  # cat /etc/udev/rules.d/71-sev.rules
-  KERNEL=="sev", MODE="0660", GROUP="kvm"
-  ```
-* Clean libvirt caches so that on restart libvirt re-generates the capabilities
-
-  ```
-  # rm -rf /var/cache/libvirt/qemu/capabilities/
-  # systemctl restart libvirtd
-  ```
-* SEV feature is not enabled in kernel by default, lets enable it through kernel command line:
-
-  Append the following in /etc/defaults/grub
-  ```
-   GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
-  ```
-  Regenerate grub.cfg and reboot the host
-
-  ```
-  # grub2-mkconfig -o /boot/efi/EFI/opensuse/grub.cfg
-  # reboot
-  ```
-  
-<a name="tumbleweed-launch-vm"></a>  
-### Launch SEV VM
-
-Since virt-manager does not support SEV yet hence we need to use 'virsh' command to launch the SEV guest. See xmls/sample.xml on how to add SEV specific information in existing xml. Use the following command to launch SEV guest
-
-```
-# virsh create sample.xml
+$ cd distros/ubuntu-18.04
+$ ./build-kata.sh
 ```
 
-> The sample xml was generated through virt-manager and then edited with SEV specific information. The main changes are:
->
->* For virtio devices we need to enable DMA APIs. The DMA APIs are enable through <b><driver iommu='on'/></b> (aka iommu_platform=on) tag
+At this point, docker is installed and configured to use the SEV-capable kata-runtime as the default runtime for containers. In addition, kata-runtime is configured to use SEV for all containers by default.
+
+<a name="ubuntu18-kata-launch"></a>
+### Launching SEV Containers
+
+Use the following command to launch a busybox container protected by SEV:
 
 ```
-    <controller type='virtio-serial' index='0'> 
-      <driver iommu='on' /> 
-      <alias name='virtio-serial0'/>
-      <address type='pci' domain='0x0000' bus='0x02' slot='0x00' function='0x0'/> 
-    </controller>
- ``` 
-> * Add LaunchSecurity tag to tell libvirt to enable memory-encryption
-
-```
-    <launchSecurity type='sev'>
-      <policy>0x0001</policy>
-      <cbitpos>47</cbitpos>
-      <reducedPhysBits>1</reducedPhysBits>
-    </launchSecurity>
+$ sudo docker run -it busybox sh
 ```
 
-> * QEMU pins the guest memory during the SEV guest launch hence we need to set the domain specific memory parameters to raise the memlock rlimits. e.g the below <b>memtune</b> tags raise the memlock limit to 5GB.
+To verify that SEV is active in the guest, look for messages in the kernel logs containing "SEV":
 
 ```
-    <memtune>
-      <hard_limit unit='G'>5</hard_limit>
-      <soft_limit unit='G'>5</soft_limit>
-    </memtune>  
+\ # dmesg | grep SEV
+   [    0.001000] AMD Secure Encrypted Virtualization (SEV) active
+   [    0.219196] SEV is active and system is using DMA bounce buffers
 ```
-  
+
 <a name="resources"></a>
 # Additional Resources
 
@@ -336,37 +120,41 @@ Since virt-manager does not support SEV yet hence we need to use 'virsh' command
 
 [Qemu doc](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
 
+[Kata Architecture](https://github.com/kata-containers/documentation/blob/master/architecture.md)
+
+[Kata Developer Guide](https://github.com/kata-containers/documentation/blob/master/Developer-Guide.md)
+
 <a name="faq"></a>
 # FAQ
 
 <a name="faq-1"></a>
- * <b>How do I know if hypervisor supports SEV feature ?</b>
-   
-   a) When using libvirt >= 4.15 run the following command
-   
+ * **How do I know if my hypervisor supports the SEV feature?**
+
+   a) When using libvirt >= 4.15 run the following command as root:
+
    ```
    # virsh domcapabilities
    ```
-   If hypervisor supports SEV feature then <b>sev</b> tag will be present.
-   
-   >See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV)
-for additional information.
- 
-   b) Use qemu QMP 'query-sev-capabilities' command to check the SEV support. If SEV is supported then command will return the full SEV capabilities (which includes host PDH, cert-chain, cbitpos and reduced-phys-bits).
-   
-     > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
-  
+   If the hypervisor supports the SEV feature, then the **sev** tag will be present.
+
+>  See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV) for additional information.
+
+   b) Use the QMP 'query-sev-capabilities' command to check for SEV support. If SEV is supported, then the command will return the full SEV capabilities (which includes the host PDH, cert-chain, cbitpos and reduced-phys-bits).
+
+>  See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
+
 <a name="faq-2"></a>
- * <b>How do I know if SEV is enabled in the guest ?</b>
+ * **How do I know if SEV is enabled in the guest?**
  
-   a) Check the kernel log buffer for the following message
+   a) Check the kernel log buffer for the following message:
+
    ```
    # dmesg | grep -i sev
    AMD Secure Encrypted Virtualization (SEV) active
    ```
-   
-   b) MSR 0xc0010131 (MSR_AMD64_SEV) can be used to determine if SEV is active
-   
+
+   b) MSR 0xc0010131 (MSR_AMD64_SEV) can be used to determine if SEV is active:
+
    ```
    # rdmsr -a 0xc0010131
    ```
@@ -376,26 +164,26 @@ for additional information.
    </pre>
 
 <a name="faq-3"></a>
- * <b>Can I use virt-manager to launch SEV guest?</b>
+ * **Can I use virt-manager to launch SEV guests?**
 
-    virt-manager uses libvirt to manage VMs, SEV support has been added in libvirt but virt-manager does use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet hence we will not able to launch SEV guest through the virt-manager.
-    > If your system is using libvirt >= 4.15 then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable the SEV support in the guest.
+    virt-manager uses libvirt to manage VMs. SEV support has been added in libvirt, but virt-manager does not use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet. Hence, we will not able to launch SEV guests through virt-manager.
+>   If your system is using libvirt >= 4.15, then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable SEV support in the guest.
 
 <a name="faq-4"></a>
- * <b>How to increase SWIOTLB limit ?</b>
- 
+ * **How do I increase the SWIOTLB limit?**
+
  When SEV is enabled, all the DMA operations inside the guest are performed on the shared memory. Linux kernel uses SWIOTLB  bounce buffer for DMA operations inside SEV guest. A guest panic will occur if kernel runs out of the SWIOTLB pool. Linux kernel default to 64MB SWIOTLB pool. It is recommended to increase the swiotlb pool size to 512MB. The swiotlb pool size can be increased in guest by appending the following in the grub.cfg file
- 
- Append the following in /etc/defaults/grub
 
-```
+ Append the following in /etc/defaults/grub:
+
+ ```
 GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
-```
+ ```
 
-And regenerate the grub.cfg.
+ And regenerate the grub.cfg.
 
 <a name="faq-5"></a>
- * <b>virtio-blk device runs out-of-dma-buffer error </b>
- 
+ * **virtio-blk device encounters an out-of-dma-buffer error**
+
  To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
- 
+
