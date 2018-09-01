@@ -8,11 +8,11 @@
     * [ Launch SEV Containers ](#ubuntu18-kata-launch)
 * [ Additional Resources ](#resources)
 * [ FAQ ](#faq)
-  * [ How do I know if my Hypervisor supports SEV ](#faq-1)
-  * [ How do I know if SEV is enabled in the guest ](#faq-2)
-  * [ Can I use virt-manager to launch SEV guests ](#faq-3)
-  * [ virtio-blk devices fail with an out-of-dma-buffer error ](#faq-4)
-  * [ How to increase SWIOTLB limit ](#faq-5)
+  * [ How do I know if my hypervisor supports SEV? ](#faq-1)
+  * [ How do I know if SEV is enabled in the guest? ](#faq-2)
+  * [ Can I use virt-manager to launch SEV guests? ](#faq-3)
+  * [ virtio-blk devices fail with an out-of-dma-buffer error! ](#faq-4)
+  * [ How do I increase the SWIOTLB limit? ](#faq-5)
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
