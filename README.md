@@ -182,6 +182,12 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
  * **virtio-blk devices fail with an out-of-dma-buffer error!**
 
    To support the multiqueue mode, virtio-blk drivers inside the guest allocate a large number of DMA buffers. SEV guests use SWIOTLB for DMA buffer allocation/mapping, hence the kernel exhausts the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases, consider [ increasing the SWIOTLB pool size ](#faq-5), or use a virtio-scsi device.
+   > NOTE: If the device containing the container rootfs image is changed from virtio-blk to virtio-scsi, then the kernel_params variable in /etc/kata-containers/configuration.toml must be updated with root=/dev/sda1 (instead of /dev/vda1). Otherwise, the container will appear to hang during startup.
+   
+   The root device can be changed from the command line using sed:
+   ```
+   sudo sed -i -e "s/vda1/sda1/g" /etc/kata-containers/configuration.toml
+   ```
 
 <a name="faq-5"></a>
  * **How do I increase the SWIOTLB limit?**
