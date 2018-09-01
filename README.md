@@ -168,7 +168,7 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
  * **Can I use virt-manager to launch SEV guests?**
 
    virt-manager uses libvirt to manage VMs. SEV support has been added in libvirt, but virt-manager does not use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet. Hence, we will not able to launch SEV guests through virt-manager.
->   If your system is using libvirt >= 4.15, then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable SEV support in the guest.
+   >   If your system is using libvirt >= 4.15, then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable SEV support in the guest.
 
 <a name="faq-4"></a>
  * **How do I increase the SWIOTLB limit?**
