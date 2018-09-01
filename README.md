@@ -1,17 +1,18 @@
 # Table of contents
 * [ Introduction ](#intro)
 * [ Kata Containers with SEV ](#kata-sev)
-* [ Ubuntu-18.04 ](#ubuntu18)
-  * [ Prepare Host OS ](#ubuntu18-kata-host)
-  * [ Install Kata ](#ubuntu18-kata-install)
-  * [ Launch SEV Container ](#ubuntu18-kata-launch)
-* [ Additional resources ](#resources)
+  * [ External Dependencies ](#kata-deps)
+  * [ Ubuntu-18.04 ](#ubuntu18)
+    * [ Prepare Host OS ](#ubuntu18-kata-host)
+    * [ Install Kata ](#ubuntu18-kata-install)
+    * [ Launch SEV Containers ](#ubuntu18-kata-launch)
+* [ Additional Resources ](#resources)
 * [ FAQ ](#faq)
   * [ How do I know if my Hypervisor supports SEV ](#faq-1)
-  * [ How do I know if SEV is enabled in the guest](#faq-2)
-  * [ Can I use virt-manager to launch SEV guests](#faq-3)
-  * [ How to increase SWIOTLB limit](#faq-4)
-  * [ virtio-blk fails with out-of-dma-buffer error](#faq-5)  
+  * [ How do I know if SEV is enabled in the guest ](#faq-2)
+  * [ Can I use virt-manager to launch SEV guests ](#faq-3)
+  * [ virtio-blk devices fail with an out-of-dma-buffer error ](#faq-4)
+  * [ How to increase SWIOTLB limit ](#faq-5)
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
@@ -22,7 +23,7 @@ virtual machine (VMs) under the control of KVM. Encrypted VMs have their pages
 unencrypted version. Each encrypted VM is associated with a unique encryption
 key; if the guest data is accessed from a different entity using a different key,
 then the encrypted guest's data will be incorrectly decrypted into unintelligible
-data.
+plaintext.
 
 SEV support has been accepted in upstream projects. This repository provides
 scripts to build various components to enable SEV support until the distros
@@ -30,6 +31,11 @@ include the newer versions.
 
 <a name="kata-sev"></a>
 # Kata Containers with SEV
+
+[ Kata Containers ](https://katacontainers.io) is an OpenStack project designed to leverage hardware virtualization technology to provide maximum isolation for container workloads in cloud environments. On AMD systems, SEV can be applied to further protect the confidentiality of container workloads from the host and other tenant containers.
+
+<a name="kata-deps"></a>
+## External Dependencies
 
 To enable SEV support with Kata Containers, the following component versions are required:
 
@@ -40,6 +46,8 @@ To enable SEV support with Kata Containers, the following component versions are
 | ovmf          | >= commit (75b7aa9528bd 2018-07-06 ) |
 
 > NOTE: SEV support is not available in SeaBIOS. Guests must use OVMF.
+
+The [ Prepare Host OS ](#ubuntu18-kata-host) section contains instructions for satisfying these dependencies.
 
 <a name="ubuntu18"></a>
 ## Ubuntu 18.04
@@ -81,7 +89,7 @@ $ ./build-kata.sh
 At this point, docker is installed and configured to use the SEV-capable kata-runtime as the default runtime for containers. In addition, kata-runtime is configured to use SEV for all containers by default.
 
 <a name="ubuntu18-kata-launch"></a>
-### Launching SEV Containers
+### Launch SEV Containers
 
 Use the following command to launch a busybox container protected by SEV:
 
@@ -92,7 +100,7 @@ $ sudo docker run -it busybox sh
 To verify that SEV is active in the guest, look for messages in the kernel logs containing "SEV":
 
 ```
-\ # dmesg | grep SEV
+# dmesg | grep SEV
    [    0.001000] AMD Secure Encrypted Virtualization (SEV) active
    [    0.219196] SEV is active and system is using DMA bounce buffers
 ```
@@ -100,25 +108,25 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
 <a name="resources"></a>
 # Additional Resources
 
-[SME/SEV white paper](http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/12/AMD_Memory_Encryption_Whitepaper_v7-Public.pdf)
+[SME/SEV White Paper](http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/12/AMD_Memory_Encryption_Whitepaper_v7-Public.pdf)
 
-[SEV API Spec](http://support.amd.com/TechDocs/55766_SEV-KM%20API_Specification.pdf)
+[SEV Key Management API Spec](http://support.amd.com/TechDocs/55766_SEV-KM%20API_Specification.pdf)
 
 [APM Section 15.34](http://support.amd.com/TechDocs/24593.pdf)
 
-[KVM forum slides](http://www.linux-kvm.org/images/7/74/02x08A-Thomas_Lendacky-AMDs_Virtualizatoin_Memory_Encryption_Technology.pdf)
+[KVM Forum Slides](http://www.linux-kvm.org/images/7/74/02x08A-Thomas_Lendacky-AMDs_Virtualizatoin_Memory_Encryption_Technology.pdf)
 
-[KVM forum videos](https://www.youtube.com/watch?v=RcvQ1xN55Ew)
+[KVM Forum Videos](https://www.youtube.com/watch?v=RcvQ1xN55Ew)
 
-[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/virtual/kvm/amd-memory-encryption.rst)
+[Linux Kernel Memory Encryption Documentation (RST)](https://elixir.bootlin.com/linux/latest/source/Documentation/virtual/kvm/amd-memory-encryption.rst)
 
-[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
+[Linux Kernel Memory Encryption Documentation (TXT)](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
 
-[Libvirt LaunchSecurity tag](https://libvirt.org/formatdomain.html#sev)
+[Libvirt LaunchSecurity Tag](https://libvirt.org/formatdomain.html#sev)
 
 [Libvirt SEV domainCap](https://libvirt.org/formatdomaincaps.html#elementsSEV)
 
-[Qemu doc](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
+[Qemu Memory Encryption Documentation](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
 
 [Kata Architecture](https://github.com/kata-containers/documentation/blob/master/architecture.md)
 
@@ -171,20 +179,24 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
    >   If your system is using libvirt >= 4.15, then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable SEV support in the guest.
 
 <a name="faq-4"></a>
- * **How do I increase the SWIOTLB limit?**
+ * **virtio-blk devices fail with an out-of-dma-buffer error!**
 
-   When SEV is enabled, all the DMA operations inside the guest are performed on the shared memory. Linux kernel uses SWIOTLB  bounce buffer for DMA operations inside SEV guest. A guest panic will occur if kernel runs out of the SWIOTLB pool. Linux kernel default to 64MB SWIOTLB pool. It is recommended to increase the swiotlb pool size to 512MB. The swiotlb pool size can be increased in guest by appending the following in the grub.cfg file
-
-   Append the following in /etc/defaults/grub:
-
-   ```
-   GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
-   ```
-
-   And regenerate the grub.cfg.
+   To support the multiqueue mode, virtio-blk drivers inside the guest allocate a large number of DMA buffers. SEV guests use SWIOTLB for DMA buffer allocation/mapping, hence the kernel exhausts the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases, consider [ increasing the SWIOTLB pool size ](#faq-5), or use a virtio-scsi device.
 
 <a name="faq-5"></a>
- * **virtio-blk device encounters an out-of-dma-buffer error**
+ * **How do I increase the SWIOTLB limit?**
 
-   To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
+   When SEV is enabled, all DMA operations inside the guest must be performed on shared (i.e. unencrypted) memory. The Linux kernel uses SWIOTLB bounce buffers to meet this requirement. A guest panic will occur if the kernel exhausts the SWIOTLB pool. The Linux kernel defaults to a 64MB SWIOTLB pool. It is recommended to increase the SWIOTLB pool size to 512MB. The SWIOTLB pool size can be increased in the guest by appending the "swiotlb=" parameter to the Linux kernel command line in the configuration.toml file.
 
+   Append the "swiotlb=" parameter to the kernel_params variable in /etc/kata-containers/configuration.toml:
+
+   ```
+   kernel_params = " ... swiotlb=262144"
+   ```
+   
+   Alternatively, this can be done from the command line using sed:
+   
+   ```
+   sudo sed -i -e "s/^kernel_params = \"\(.*\)\"/kernel_params = \"\1 swiotlb=262144\"/g" /etc/kata-containers/configuration.toml
+   ```
+   
