@@ -138,7 +138,7 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
 <a name="faq-1"></a>
  * **How do I know if my hypervisor supports the SEV feature?**
 
-   a) When using libvirt >= 4.15 run the following command as root:
+   a) When using libvirt >= 4.15, run the following command as root:
 
    ```
    # virsh domcapabilities
