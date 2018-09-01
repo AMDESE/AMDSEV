@@ -135,13 +135,14 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
    ```
    # virsh domcapabilities
    ```
+
    If the hypervisor supports the SEV feature, then the **sev** tag will be present.
 
->  See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV) for additional information.
+   > See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV) for additional information.
 
    b) Use the QMP 'query-sev-capabilities' command to check for SEV support. If SEV is supported, then the command will return the full SEV capabilities (which includes the host PDH, cert-chain, cbitpos and reduced-phys-bits).
 
->  See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
+   > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
 
 <a name="faq-2"></a>
  * **How do I know if SEV is enabled in the guest?**
@@ -166,24 +167,24 @@ To verify that SEV is active in the guest, look for messages in the kernel logs 
 <a name="faq-3"></a>
  * **Can I use virt-manager to launch SEV guests?**
 
-    virt-manager uses libvirt to manage VMs. SEV support has been added in libvirt, but virt-manager does not use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet. Hence, we will not able to launch SEV guests through virt-manager.
+   virt-manager uses libvirt to manage VMs. SEV support has been added in libvirt, but virt-manager does not use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet. Hence, we will not able to launch SEV guests through virt-manager.
 >   If your system is using libvirt >= 4.15, then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable SEV support in the guest.
 
 <a name="faq-4"></a>
  * **How do I increase the SWIOTLB limit?**
 
- When SEV is enabled, all the DMA operations inside the guest are performed on the shared memory. Linux kernel uses SWIOTLB  bounce buffer for DMA operations inside SEV guest. A guest panic will occur if kernel runs out of the SWIOTLB pool. Linux kernel default to 64MB SWIOTLB pool. It is recommended to increase the swiotlb pool size to 512MB. The swiotlb pool size can be increased in guest by appending the following in the grub.cfg file
+   When SEV is enabled, all the DMA operations inside the guest are performed on the shared memory. Linux kernel uses SWIOTLB  bounce buffer for DMA operations inside SEV guest. A guest panic will occur if kernel runs out of the SWIOTLB pool. Linux kernel default to 64MB SWIOTLB pool. It is recommended to increase the swiotlb pool size to 512MB. The swiotlb pool size can be increased in guest by appending the following in the grub.cfg file
 
- Append the following in /etc/defaults/grub:
+   Append the following in /etc/defaults/grub:
 
- ```
-GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
- ```
+   ```
+   GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
+   ```
 
- And regenerate the grub.cfg.
+   And regenerate the grub.cfg.
 
 <a name="faq-5"></a>
  * **virtio-blk device encounters an out-of-dma-buffer error**
 
- To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
+   To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
 
