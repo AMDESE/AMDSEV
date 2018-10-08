@@ -151,15 +151,9 @@ build_install_kata_qemu()
 install_kata()
 {
 	# If a kata config file exists, back it up
+	default_config=/usr/share/defaults/kata-containers/configuration.toml
 	config_file=/etc/kata-containers/configuration.toml
 	[ -f ${config_file} ] && run_cmd "sudo mv ${config_file} ${config_file}.orig"
-
-	# The default kata config is not bootable until the user chooses
-	# how to pass the container roorfs. If a default kata config
-	# exists, then make it bootable using the initrd image by
-	# removing the 'image' line
-	default_config=/usr/share/defaults/kata-containers/configuration.toml
-	[ -f ${default_config} ] && sudo sed -i "s/^\(image =.*\)/# \1/g" ${default_config}
 
 	# Install the packaged kata binaries using kata-manager
 	repo="github.com/kata-containers/tests"
@@ -171,8 +165,14 @@ install_kata()
         GOPATH=${HOME}/go
 	PATH=${PATH}:${GOPATH}/bin:${go_dir}/go/bin:${BUILD_DIR}/tests/cmd/kata-manager
         run_cmd "go get -d $repo"
+	run_cmd "sudo env PATH=${PATH} kata-manager.sh install-packages"
+	run_cmd "sudo mkdir -p /etc/kata-containers"
+	run_cmd "sudo cp ${default_config} ${config_file}"
+	kata_initrd=/usr/share/kata-containers/kata-containers-initrd.img
+	run_cmd "sudo env PATH=${PATH} kata-manager.sh configure-initrd ${kata_initrd}"
+	run_cmd "sudo env PATH=${PATH} kata-manager.sh enable-debug"
 	run_cmd "sudo env PATH=${PATH} kata-manager.sh install-docker-system"
-        popd
+	popd
 
 	# Build the kata-runtime with SEV support
 	sudo curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
