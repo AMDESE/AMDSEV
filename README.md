@@ -15,6 +15,7 @@
 * [ openSuse-Tumbleweed](#tumbleweed)
   * [ Prepare Host OS ](#tumbleweed-host)
   * [ Launch SEV VM ](#tumbleweed-launch-vm)
+* [ SEV Containers ](#kata)
 * [ Additional resources ](#resources)
 * [ FAQ ](#faq)
   * [ How do I know if Hypervisor supports SEV ](#faq-1)
@@ -312,7 +313,14 @@ Since virt-manager does not support SEV yet hence we need to use 'virsh' command
       <soft_limit unit='G'>5</soft_limit>
     </memtune>  
 ```
-  
+
+<a name="kata"></a>
+## SEV Containers
+
+Container runtimes that use hardware virtualization to further isolate container workloads can also make use of SEV. As a proof-of-concept, the [kata](https://github.com/AMDESE/AMDSEV/tree/kata) branch contains an SEV-capable version of the Kata Containers runtime that will start all containers inside of SEV virtual machines.
+
+For installation instructions on Ubuntu systems, see the [README](https://github.com/AMDESE/AMDSEV/blob/kata/README.md).
+
 <a name="resources"></a>
 # Additional Resources
 
