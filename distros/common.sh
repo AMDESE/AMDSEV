@@ -57,7 +57,7 @@ build_install_ovmf()
 	fi
 
 	pushd $BUILD_DIR/edk2
-	#run_cmd "make -C BaseTools"
+	run_cmd "make -C BaseTools"
 	. ./edksetup.sh --reconfig
 	run_cmd "nice build --cmd-len=64436 \
 		-DDEBUG_ON_SERIAL_PORT=TRUE \
