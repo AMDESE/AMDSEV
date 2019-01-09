@@ -148,6 +148,29 @@ build_install_kata_qemu()
 	popd
 }
 
+install_go()
+{
+	go_version="${1:-"1.8"}"
+	install_dir="${2:-"/usr/local"}"
+
+	if which go; then
+		# A version of Go is installed already,
+		# so we can run the install script from the kata test repo
+		repo="github.com/kata-containers/tests"
+		run_cmd go get -d ${repo}
+		GOPATH="${GOPATH:-"${HOME}/go"}"
+		PATH=${PATH}:${GOPATH}/src/${repo}/.ci
+		run_cmd "sudo env GOPATH=${GOPATH} PATH=${PATH} install_go.sh -d ${install_dir} ${go_version}"
+	else
+		# Install Go manually
+		go_file="go${go_version}.linux-amd64.tar.gz"
+		run_cmd curl -Lo "${BUILD_DIR}/${go_file}" "https://storage.googleapis.com/golang/${go_file}"
+		run_cmd mkdir -p "${install_dir}"
+		run_cmd sudo tar -C "${install_dir}" -xzf "${BUILD_DIR}/${go_file}"
+		echo "Go ${go_version} successfully installed to ${install_dir}"
+	fi
+}
+
 install_kata()
 {
 	# If a kata config file exists, back it up
@@ -155,15 +178,14 @@ install_kata()
 	config_file=/etc/kata-containers/configuration.toml
 	[ -f ${config_file} ] && run_cmd "sudo mv ${config_file} ${config_file}.orig"
 
+	# Install Go
+	go_dir=/usr/local
+	install_go 1.8 ${go_dir}
+        GOPATH=${HOME}/go
+
 	# Install the packaged kata binaries using kata-manager
 	repo="github.com/kata-containers/tests"
-        [ ! -d ${BUILD_DIR}/tests ] && run_cmd "git clone https://$repo.git ${BUILD_DIR}/tests"
-        pushd ${BUILD_DIR}/tests
-	PATH=${PATH}:${BUILD_DIR}/tests/.ci
-	go_dir=/usr/local
-        run_cmd "sudo env PATH=${PATH} install_go.sh -d ${go_dir} 1.8"
-        GOPATH=${HOME}/go
-	PATH=${PATH}:${GOPATH}/bin:${go_dir}/go/bin:${BUILD_DIR}/tests/cmd/kata-manager
+	PATH=${PATH}:${GOPATH}/bin:${go_dir}/go/bin:${GOPATH}/src/${repo}/cmd/kata-manager
         run_cmd "go get -d $repo"
 	run_cmd "sudo env PATH=${PATH} kata-manager.sh install-packages"
 	run_cmd "sudo mkdir -p /etc/kata-containers"
@@ -172,7 +194,6 @@ install_kata()
 	run_cmd "sudo env PATH=${PATH} kata-manager.sh configure-initrd ${kata_initrd}"
 	run_cmd "sudo env PATH=${PATH} kata-manager.sh enable-debug"
 	run_cmd "sudo env PATH=${PATH} kata-manager.sh install-docker-system"
-	popd
 
 	# Build the kata-runtime with SEV support
 	sudo curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
