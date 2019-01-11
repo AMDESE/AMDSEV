@@ -5,7 +5,7 @@
 qemu_share=/usr/local/share/qemu
 
 # Install additional tools
-run_cmd "sudo apt-get -y install sudo curl systemd gnupg"
+run_cmd "sudo apt-get -y install sudo curl systemd gnupg libelf-dev"
 
 # install kata containers
 install_kata
