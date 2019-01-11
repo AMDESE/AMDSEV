@@ -20,3 +20,4 @@ LIBVIRT_COMMIT=v4.5.0
 # kata forks
 KATA_KERNEL_GIT_URL=https://github.com/AMDESE/linux.git
 KATA_KERNEL_COMMIT=sev
+KATA_KERNEL_CONFIG=x86_64_kata_kvm_4.14.x

@@ -21,6 +21,8 @@ build_kernel()
 	if [ ! -d $BUILD_DIR/linux ]; then
 		run_cmd "mkdir -p ${BUILD_DIR}/linux"
 		run_cmd "git clone --single-branch -b ${KERNEL_COMMIT} ${KERNEL_GIT_URL} ${BUILD_DIR}/linux"
+	else
+		run_cmd "git checkout ${KERNEL_COMMIT}"
 	fi
 
 	pushd $BUILD_DIR/linux
@@ -249,7 +251,7 @@ build_kata_kernel()
 		run_cmd "git checkout kata/${KATA_KERNEL_COMMIT}"
 	fi
 
-	run_cmd "cp $BUILD_DIR/packaging/kernel/configs/x86_64_kata_kvm_* .config"
+	run_cmd "cp $BUILD_DIR/packaging/kernel/configs/${KATA_KERNEL_CONFIG} .config"
 	./scripts/config --enable CONFIG_AMD_MEM_ENCRYPT
 	./scripts/config --enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
 	./scripts/config --enable CONFIG_KVM_AMD_SEV
