@@ -8,6 +8,10 @@
   * [ Prepare Host OS ](#fc-28-host)
   * [ Prepare VM ](#fc-28-prep-vm)
   * [ Launch SEV VM ](#fc-28-launch-vm)
+* [ Fedora-29 ](#fc-29)
+  * [ Prepare Host OS ](#fc-29-host)
+  * [ Prepare VM ](#fc-29-prep-vm)
+  * [ Launch SEV VM ](#fc-29-launch-vm)
 * [ Ubuntu-18.04 ](#ubuntu18)
   * [ Prepare Host OS ](#ubuntu18-host)
   * [ Prepare VM ](#ubuntu18-prep-vm)
@@ -186,6 +190,91 @@ Use the following command to launch SEV guest
 
 ```
 # launch-qemu.sh -hda fedora-28.qcow2
+```
+
+NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
+
+<a name="fc-29"></a>
+## Fedora-29
+
+Fedora-29 contains all the pre-requisite packages to launch an SEV guest. But the SEV feature is not enabled by default, this section documents how to enable the SEV feature.
+
+<a name="fc-29-host"></a>
+### Prepare Host OS
+
+* Add new udev rule for the /dev/sev device
+  
+  ```
+  # cat /etc/udev/rules.d/71-sev.rules
+  KERNEL=="sev", MODE="0660", GROUP="kvm"
+  ```
+* Clean libvirt caches so that on restart libvirt re-generates the capabilities
+
+  ```
+  # rm -rf /var/cache/libvirt/qemu/capabilities/
+  ```
+  
+* The default FC-29 kernel (4.18) has SEV disabled in config files, but the kernel available through the FC-29 update
+  has SEV config set
+
+  Use the following command to upgrade the packages and also install the virtulization packages
+
+   ```
+   # yum groupinstall virtualization
+   # yum upgrade
+   ```
+
+* By default SEV is disabled, append the following in /etc/defaults/grub
+
+    ```
+     GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+    ```
+
+    Regenerate grub.cfg and reboot the host
+
+    ```
+     # grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+     # reboot
+    ```
+
+* Install the qemu launch script
+
+     ```
+      # cd distros/fedora-29
+      # ./build.sh
+     ```
+     
+<a name="fc-29-prep-vm"></a>
+### Prepare VM image
+
+Create empty virtual disk image
+
+```
+# qemu-img create -f qcow2 fedora-29.qcow2 30G
+```
+
+Create a new copy of OVMF_VARS.fd. The OVMF_VARS.fd is a "template" used
+to emulate persistent NVRAM storage. Each VM needs a private, writable
+copy of VARS.fd.
+
+```
+# cp /usr/share/edk2/ovmf/OVMF_VARS.fd OVMF_VARS.fd
+```
+
+Download and install fedora-29 guest
+
+```
+# launch-qemu.sh -hda fedora-29.qcow2 -cdrom  Fedora-Workstation-netinst-x86_64-29-1.1.iso
+```
+Follow the screen to complete the guest installation.
+
+<a name="fc-29-launch-vm"></a>
+### Launch VM
+
+Use the following command to launch SEV guest
+
+```
+# launch-qemu.sh -hda fedora-29.qcow2
 ```
 
 NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
