@@ -119,7 +119,7 @@ add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_BIOS_VARS}"
 # add CDROM if specified
 [ ! -z ${CDROM_FILE} ] && add_opts "-drive file=${CDROM_FILE},media=cdrom -boot d"
 
-add_opts "-netdev user,id=vmnic -device e1000,netdev=vmnic"
+add_opts "-netdev user,id=vmnic -device e1000,netdev=vmnic,romfile="
 
 # If harddisk file is specified then add the HDD drive
 if [ ! -z ${HDA_FILE} ]; then
