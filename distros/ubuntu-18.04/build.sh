@@ -2,7 +2,7 @@
 
 . ../common.sh
 
-grep deb-src > /etc/apt/sources.list
+grep deb-src /etc/apt/sources.list
 if [ $? -ne 0 ]; then
 cat >> /etc/apt/sources.list <<EOF
 deb-src http://archive.ubuntu.com/ubuntu bionic main restricted
