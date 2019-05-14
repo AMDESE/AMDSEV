@@ -97,7 +97,7 @@ if [ `id -u` -ne 0 ]; then
 	exit 1
 fi
 
-while [[ $1 != "" ]]; do
+while [ -n "$1" ]; do
 	case "$1" in
 		-sev)		SEV="1"
 				;;
@@ -221,7 +221,7 @@ add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_VARS}"
 
 # check if host has bridge network
 BR0_STATUS="`ifconfig | grep br[0-9]`"
-if [ "$BR0_STATUS" != "" ]; then
+if [ -n "$BR0_STATUS" ]; then
 	setup_bridge_network
 else
 	add_opts "-netdev user,id=vmnic -device e1000,netdev=vmnic,romfile="
@@ -302,6 +302,6 @@ bash ${QEMU_CMDLINE} 2>&1 | tee -a ${QEMU_CONSOLE_LOG}
 stty intr ^c
 
 rm -rf ${QEMU_CMDLINE}
-if [ "$BR0_STATUS" != "" ]; then
+if [ -n "$BR0_STATUS" ]; then
 	stop_network
 fi
