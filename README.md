@@ -4,6 +4,10 @@
   * [ Prepare Host OS ](#sles-15-host)
   * [ Prepare VM ](#sles-15-prep-vm)
   * [ Launch SEV VM ](#sles-15-launch-vm)
+* [ RHEL-8 ](#rhel-8)
+  * [ Prepare Host OS ](#rhel-8-host)
+  * [ Prepare VM ](#rhel-8-prep-vm)
+  * [ Launch SEV VM ](#rhel-8-launch-vm)  
 * [ Fedora-28 ](#fc-28)
   * [ Prepare Host OS ](#fc-28-host)
   * [ Prepare VM ](#fc-28-prep-vm)
@@ -126,6 +130,70 @@ Use the following command to launch SEV guest
 
 ```
 # launch-qemu.sh -hda sles-15.qcow2
+```
+NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
+
+## RHEL-8
+
+RedHat Enterprise Linux 8.0 GA includes the SEV support; we do not need
+to compile the sources.
+
+<a name="rhel-8-host"></a>
+### Prepare Host OS
+
+SEV is not enabled by default, lets enable it through kernel command line:
+
+Append the following in /etc/defaults/grub
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+```
+
+Regenerate grub.cfg and reboot the host
+
+```
+# grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg
+# reboot
+```
+
+Install the qemu launch script. The launch script can be obtained from this project.
+
+```
+# git clone https://github.com/AMDESE/AMDSEV.git
+# cd AMDSEV/distros/rhel-8
+# ./build.sh
+```
+<a name="rhel-8-prep-vm"></a>
+### Prepare VM image
+
+Create empty virtual disk image
+
+```
+# qemu-img create -f qcow2 rhel-8.qcow2 30G
+```
+
+Create a new copy of OVMF_VARS.fd. The OVMF_VARS.fd is a "template" used
+to emulate persistent NVRAM storage. Each VM needs a private, writable
+copy of VARS.fd.
+
+```
+#cp /usr/share/OVMF/OVMF_VARS.fd OVMF_VARS.fd 
+```
+
+Download and install rhel-8 guest
+
+```
+# launch-qemu.sh -hda rhel-8.qcow2 -cdrom RHEL-8.0.0-20190404.2-x86_64-dvd1.iso
+```
+Follow the screen to complete the guest installation.
+
+<a name="rhel-8-launch-vm"></a>
+### Launch VM
+
+Use the following command to launch SEV guest
+
+```
+# launch-qemu.sh -hda rhel-8.qcow2
 ```
 NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
 
