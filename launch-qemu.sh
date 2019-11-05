@@ -90,6 +90,24 @@ setup_bridge_network() {
 	fi
 }
 
+get_cbitpos() {
+	#
+	# Get C-bit position directly from the hardware
+	#   Reads of /dev/cpu/x/cpuid have to be 16 bytes in size
+	#     and the seek position represents the CPUID function
+	#     to read.
+	#   The skip parameter of DD skips ibs-sized blocks, so
+	#     can't directly go to 0x8000001f function (since it
+	#     is not a multiple of 16). So just start at 0x80000000
+	#     function and read 32 functions to get to 0x8000001f
+	#   To get to EBX, which contains the C-bit position, skip
+	#     the first 4 bytes (EAX) and then convert 4 bytes.
+	#
+
+	EBX=$(dd if=/dev/cpu/0/cpuid ibs=16 count=32 skip=134217728 | tail -c 16 | od -An -t u4 -j 4 -N 4 | sed -re 's|^ *||')
+	CBITPOS=$((EBX & 0x3f))
+}
+
 trap exit_from_int SIGINT
 
 if [ `id -u` -ne 0 ]; then
@@ -254,7 +272,8 @@ if [ ${SEV} = "1" ]; then
 		[ "${SEV_ES}" = "1" ] && POLICY=$((POLICY | 0x04))
 		SEV_POLICY=$(printf ",policy=%#x" $POLICY)
 	fi
-	add_opts "-object sev-guest,id=sev0${SEV_POLICY},cbitpos=47,reduced-phys-bits=5"
+	get_cbitpos
+	add_opts "-object sev-guest,id=sev0${SEV_POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1"
 	add_opts "-machine memory-encryption=sev0,vmport=off"
 fi
 

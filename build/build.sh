@@ -1,6 +1,8 @@
 #!/bin/bash
 
-. ./common.sh
+SCRIPT_DIR="$(dirname $0)"
+. ${SCRIPT_DIR}/common.sh
+. ${SCRIPT_DIR}/stable-commits
 
 function usage()
 {
@@ -8,7 +10,8 @@ function usage()
 	echo "  where COMPONENT is an individual component to build:"
 	echo "    qemu, ovmf, kernel"
 	echo "  where OPTIONS are:"
-	echo "  -install PATH   Installation path (default $INSTALL_DIR)"
+	echo "  --install PATH   Installation path (default $INSTALL_DIR)"
+	echo "  -h|--help        Usage information"
 
 	exit 1
 }
@@ -17,7 +20,7 @@ INSTALL_DIR="/usr/local"
 
 while [ -n "$1" ]; do
 	case "$1" in
-	-install)
+	--install)
 		[ -z "$2" ] && usage
 		INSTALL_DIR="$2"
 		shift; shift
