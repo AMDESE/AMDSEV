@@ -4,12 +4,12 @@
 
 # hypervisor commit
 KERNEL_GIT_URL="https://github.com/AMDESE/linux.git"
-KERNEL_BRANCH="sev-es-4.19"
+KERNEL_BRANCH="sev-es-5.1-v6"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
-QEMU_BRANCH="sev-es"
+QEMU_BRANCH="sev-es-v2"
 
 # guest bios
 OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
-OVMF_BRANCH="sev-es"
+OVMF_BRANCH="sev-es-v8"
