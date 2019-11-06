@@ -7,7 +7,7 @@ HDA="./ubuntu-18.04-desktop.qcow2"
 MEM="4096"
 SMP="4"
 VNC=""
-CONSOLE="std"
+CONSOLE="serial"
 USE_VIRTIO="1"
 
 SEV="0"
