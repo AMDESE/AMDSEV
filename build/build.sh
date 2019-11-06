@@ -3,6 +3,7 @@
 SCRIPT_DIR="$(dirname $0)"
 . ${SCRIPT_DIR}/common.sh
 . ${SCRIPT_DIR}/stable-commits
+[ -e /etc/os-release ] && . /etc/os-release
 
 function usage()
 {
