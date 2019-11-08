@@ -4,7 +4,7 @@
 
 # hypervisor commit
 KERNEL_GIT_URL="https://github.com/AMDESE/linux.git"
-KERNEL_BRANCH="sev-es-5.1-v6"
+KERNEL_BRANCH="sev-es-5.1-v7"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
