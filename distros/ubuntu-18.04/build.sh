@@ -20,6 +20,8 @@ fi
 
 # build linux kernel image
 run_cmd "apt-get update"
+run_cmd "apt install -y apt-utils"
+echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 run_cmd "apt-get -y build-dep linux-image-$(uname -r)"
 run_cmd "apt-get -y install flex"
 run_cmd "apt-get -y install bison fakeroot libssl-dev"
