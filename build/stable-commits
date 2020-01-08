@@ -8,8 +8,8 @@ KERNEL_BRANCH="sev-es-5.1-v7"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
-QEMU_BRANCH="sev-es-v2"
+QEMU_BRANCH="sev-es-v3"
 
 # guest bios
 OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
-OVMF_BRANCH="sev-es-v8"
+OVMF_BRANCH="sev-es-v9"
