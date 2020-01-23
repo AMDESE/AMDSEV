@@ -72,6 +72,17 @@ components successfully. There are tools that can help with this:
 * Fedora
   * dnf builddep <PKG_NAME>
 
+Ensure SEV-ES ASIDs are available
+* Look for a BIOS setting to set the SEV-ES ASID limit (naming of this
+  option may vary from OEM to OEM (e.g. "SEV-ES ASID Space Limit").
+  * It may require enabling a separate BIOS option to expose the SEV-ES
+    ASID Space Limit setting (e.g. "SEV-ES ASID Space Limit Control").
+* After booting they Hypervisor/Host OS, dmesg should contain something
+  similar to the following:
+
+	[   27.715445] SVM: SEV supported: 478 ASIDs
+	[   27.715447] SVM: SEV-ES supported: 31 ASIDs
+
 
 ```
 # ./build.sh
@@ -125,9 +136,9 @@ Select the newly installed SEV-ES kernel to boot.
 
 [SEV API Spec](http://support.amd.com/TechDocs/55766_SEV-KM%20API_Specification.pdf)
 
-[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/virtual/kvm/amd-memory-encryption.rst)
+[Linux kernel - SEV](https://elixir.bootlin.com/linux/latest/source/Documentation/virt/kvm/amd-memory-encryption.rst)
 
-[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
+[Linux kernel - SME](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.rst)
 
 [Libvirt LaunchSecurity tag](https://libvirt.org/formatdomain.html#sev)
 

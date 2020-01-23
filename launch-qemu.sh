@@ -3,7 +3,7 @@
 #
 # user changeable parameters
 #
-HDA="./ubuntu-18.04-desktop.qcow2"
+HDA=""
 MEM="4096"
 SMP="4"
 VNC=""
@@ -238,7 +238,7 @@ add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_VARS}"
 [ -n "${CDROM_FILE}" ] && add_opts "-drive file=${CDROM_FILE},media=cdrom -boot d"
 
 # check if host has bridge network
-BR0_STATUS="`ifconfig | grep br[0-9]`"
+BR0_STATUS="`ifconfig | grep ^br0`"
 if [ -n "$BR0_STATUS" ]; then
 	setup_bridge_network
 else
