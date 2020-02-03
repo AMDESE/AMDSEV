@@ -58,7 +58,7 @@ else
 	ovmf)
 		build_install_ovmf "$INSTALL_DIR/share/qemu"
 		;;
-	kernel)
+	linux|kernel)
 		build_kernel
 		;;
 	esac

@@ -74,7 +74,8 @@ setup_bridge_network() {
 	GUEST_TAP_NAME="tap${TAP_NUM}"
 
 	[ "$USE_VIRTIO" = "1" ] && PREFIX="52:54:00" || PREFIX="02:16:1e"
-	GUEST_MAC_ADDR=$(printf "%s:80:01:%02x" $PREFIX 0x${TAP_NUM})
+	SUFFIX="$(ip address show dev br0 | grep link/ether | awk '{print $2}' | awk -F : '{print $4 ":" $5}')"
+	GUEST_MAC_ADDR="$(printf "%s:%s:%02x" $PREFIX $SUFFIX $TAP_NUM)"
 
 	echo "Starting network adapter '${GUEST_TAP_NAME}' MAC=$GUEST_MAC_ADDR"
 	run_cmd "ip tuntap add $GUEST_TAP_NAME mode tap user `whoami`"
@@ -238,7 +239,7 @@ add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_VARS}"
 [ -n "${CDROM_FILE}" ] && add_opts "-drive file=${CDROM_FILE},media=cdrom -boot d"
 
 # check if host has bridge network
-BR0_STATUS="`ifconfig | grep ^br0`"
+BR0_STATUS="$(ip link show br0 type bridge 2>/dev/null)"
 if [ -n "$BR0_STATUS" ]; then
 	setup_bridge_network
 else
