@@ -77,6 +77,16 @@ build_install_ovmf()
 		popd >/dev/null
 	}
 
+	[ -d ovmf-patches ] && {
+		pushd ovmf >/dev/null
+			run_cmd git checkout .
+		popd >/dev/null
+
+		for P in ovmf-patches/*.patch; do
+			run_cmd patch -p1 -d ovmf < $P
+		done
+	}
+
 	pushd ovmf >/dev/null
 		run_cmd make -C BaseTools
 		. ./edksetup.sh --reconfig
@@ -92,7 +102,19 @@ build_install_qemu()
 {
 	DEST="$1"
 
-	[ -d qemu ] || run_cmd git clone --single-branch -b ${QEMU_BRANCH} ${QEMU_GIT_URL} qemu
+	[ -d qemu ] || {
+		run_cmd git clone --single-branch -b ${QEMU_BRANCH} ${QEMU_GIT_URL} qemu
+	}
+
+	[ -d qemu-patches ] && {
+		pushd qemu >/dev/null
+			run_cmd git checkout .
+		popd >/dev/null
+
+		for P in qemu-patches/*.patch; do
+			run_cmd patch -p1 -d qemu < $P
+		done
+	}
 
 	MAKE="make -j $(getconf _NPROCESSORS_ONLN) LOCALVERSION="
 
