@@ -12,7 +12,7 @@ run_cmd "sudo apt-get update"
 # build linux kernel image
 UNAME=$(ls /lib/modules | grep generic | head -1)
 run_cmd "sudo apt-get -y build-dep linux-image-${UNAME}"
-run_cmd "sudo apt-get -y install flex bison fakeroot bc kmod cpio libssl-dev"
+run_cmd "sudo apt-get -y install flex bison fakeroot bc kmod cpio libssl-dev libelf-dev"
 build_kernel
 
 # install newly built kernel
