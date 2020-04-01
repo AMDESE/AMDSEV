@@ -28,30 +28,28 @@ build_kernel()
 
 	MAKE="make -C linux -j $(getconf _NPROCESSORS_ONLN) LOCALVERSION="
 
-	for V in host guest; do
-		VER="-sev-es-$V"
+	run_cmd $MAKE distclean
 
-		run_cmd $MAKE distclean
+	pushd linux >/dev/null
+		run_cmd cp /boot/config-$(uname -r) .config
+		run_cmd ./scripts/config --set-str LOCALVERSION "-sev-es"
+		run_cmd ./scripts/config --disable LOCALVERSION_AUTO
+		run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT
+		run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+	popd >/dev/null
 
-		pushd linux >/dev/null
-			run_cmd cp kernel-$V.config .config
-			run_cmd ./scripts/config --set-str LOCALVERSION "$VER"
-			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
-		popd >/dev/null
+	run_cmd $MAKE olddefconfig
 
-		run_cmd $MAKE olddefconfig
+	# Build
+	run_cmd $MAKE >/dev/null
 
-		# Build 
-		run_cmd $MAKE >/dev/null
+	if [ "$ID_LIKE" = "debian" ]; then
+		run_cmd $MAKE bindeb-pkg
+	else
+		run_cmd $MAKE "RPMOPTS='--define \"_rpmdir .\"'" binrpm-pkg
 
-		if [ "$ID_LIKE" = "debian" ]; then
-			run_cmd $MAKE bindeb-pkg
-		else
-			run_cmd $MAKE "RPMOPTS='--define \"_rpmdir .\"'" binrpm-pkg
-
-			run_cmd mv linux/x86_64/*.rpm .
-		fi
-	done
+		run_cmd mv linux/x86_64/*.rpm .
+	fi
 }
 
 build_install_ovmf()

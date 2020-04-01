@@ -37,11 +37,11 @@ various components to enable SEV-ES.
 
 To enable the SEV-ES support we need the following:
 
-| Project       | Repository and Branch                            |
-| ------------- |:------------------------------------------------:|
-| kernel        | https://github.com/AMDESE/linux.git sev-es-4.19  |
-| qemu          | https://github.com/AMDESE/qemu.git  sev-es       |
-| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es       |
+| Project       | Repository and Branch                             |
+| ------------- |:-------------------------------------------------:|
+| kernel        | https://github.com/AMDESE/linux.git sev-es-5.6-v2 |
+| qemu          | https://github.com/AMDESE/qemu.git  sev-es-v5     |
+| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es-v13    |
 
 > * SEV-ES support is not available in SeaBIOS, OVMF must be used.
 
@@ -49,19 +49,16 @@ To enable the SEV-ES support we need the following:
 ## Enabling SEV-ES
 
 All three of the repositories listed above must be used to run an SEV-ES guest.
-Currently, since the patches in these repositories are still proof-of-concept,
-the hypervisor and the guest kernels must use different configurations (this
-is temporary).
+The kernel must be run in both the hypervisor and the guest.
 
 <a name="sev-es-prep-hv"></a>
 ### Prepare Hypervisor/Host OS
 
 Build and install newer components
-* This will build qemu, ovmf and both the hypervisor and guest kernels.
+* This will build qemu, ovmf and the kernel with SEV-ES support.
 * Qemu and OVMF files will be installed in /usr/local/.
-* Kernel rpm or deb packages will be created that must be installed.
-  * The hypervisor kernel version will have -sev-es-hv appended
-  * The guest kernel version will have -sev-es-guest appended
+* Use the apppropriate tool (rpm, dpkg, etc.) to install the hypervisor
+  kernel package.
 
 NOTE: The script WILL NOT install the packages needed to build everything
 sucessfully. It is up to you to install the required packages to build the
@@ -77,7 +74,7 @@ Ensure SEV-ES ASIDs are available
   option may vary from OEM to OEM (e.g. "SEV-ES ASID Space Limit").
   * It may require enabling a separate BIOS option to expose the SEV-ES
     ASID Space Limit setting (e.g. "SEV-ES ASID Space Limit Control").
-* After booting they Hypervisor/Host OS, dmesg should contain something
+* After booting the Hypervisor/Host OS, dmesg should contain something
   similar to the following:
 
 	[   27.715445] SVM: SEV supported: 478 ASIDs
@@ -102,14 +99,20 @@ Install <IMAGE_NAME> guest:
 ```
 # ./launch-qemu.sh -hda <IMAGE_NAME>.qcow2 -cdrom <DISTRO_ISO>.iso -vnc 1
 ```
-This will copy the recently installed OVMF_VARS.fd file to the local directory
-for use by the guest under name <IMAGE_NAME>.fd (unless already present).
+The guest must have been initially created/installed with a UEFI BIOS in order
+to run an SEV-ES guest later. Using the launch-qemu.sh command to initially
+install your guest will do this.
+
+The script will copy the recently installed OVMF_VARS.fd file to the local
+directory for use by the guest under name <IMAGE_NAME>.fd (unless already
+present).
 
 Connect to the VNC session and follow the screen to complete the guest
 installation.
 
-After guest installation completes, reboot into the guest and install the
-guest kernel rpm or deb package that was built earlier.
+After guest installation completes, reboot into the guest, transfer the kernel
+package that was build earlier to the guest and use the apppropriate tool (rpm,
+dpkg, etc.) to install the kernel.
 
 <a name="sev-es-launch-guest"></a>
 ### Launch SEV-ES guest
