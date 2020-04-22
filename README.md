@@ -9,6 +9,13 @@ Follow the below steps to build and run the SEV-SNP guest. The step below are te
 # sudo rpm -ivh kernel-*.rpm
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
+
+Edit /etc/defauts/grub to disable the THP, e.g something like this
+````
+GRUB_CMDLINE_LINUX= .... transparent_hugepage=never
+# grub2-mkconfig
+````
+
 Reboot the host and choose SNP kernel from the grub menu. 
 
 Run the following command to verify that SNP is enabled in the host.
@@ -26,6 +33,10 @@ SVM: SNP: rmp setup completed!
 1
 # cat /sys/module/kvm_amd/parameters/sev_snp 
 1
+
+# cat /sys/kernel/mm/transparent_hugepage/enabled
+always madvise [never]
+
 ````
 
 ## Prepare Guest
