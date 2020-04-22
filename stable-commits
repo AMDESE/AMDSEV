@@ -1,0 +1,15 @@
+#
+# Repos/Branches for SEV-SNP support
+#
+
+# hypervisor commit
+KERNEL_GIT_URL="https://github.com/AMDESE/linux.git"
+KERNEL_BRANCH="sev-es-5.6-v1+snp"
+
+# qemu commit
+QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
+QEMU_BRANCH="sev-es-v4+snp"
+
+# guest bios
+OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
+OVMF_BRANCH="sev-es-v12+snp"
