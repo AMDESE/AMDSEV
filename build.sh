@@ -29,6 +29,10 @@ while [ -n "$1" ]; do
 	-h|--help)
 		usage
 		;;
+	--package)
+		BUILD_PACKAGE="1"
+		shift
+		;;
 	-*|--*)
 		echo "Unsupported option: [$1]"
 		usage
@@ -63,4 +67,23 @@ else
 		build_kernel
 		;;
 	esac
+fi
+
+if [[ "$BUILD_PACKAGE" = "1" ]]; then
+	OUTPUT_DIR="snp-release-`date "+%F"`"
+	rm -rf $OUTPUT_DIR
+	mkdir -p $OUTPUT_DIR/linux
+	mkdir -p $OUTPUT_DIR/usr
+	cp -dpR $INSTALL_DIR $OUTPUT_DIR/usr/
+
+	if [ "$ID_LIKE" = "debian" ]; then
+		cp linux-image-*.deb $OUTPUT_DIR/linux -v
+	else
+		cp kernel-*.rpm $OUTPUT_DIR/linux -v
+	fi
+
+	cp launch-qemu.sh ${OUTPUT_DIR} -v
+	cp install.sh ${OUTPUT_DIR} -v
+	cp kvm.conf ${OUTPUT_DIR} -v
+	tar zcvf ${OUTPUT_DIR}.tar.gz ${OUTPUT_DIR}
 fi
