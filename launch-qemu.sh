@@ -296,11 +296,6 @@ if [ "$USE_GDB" = "1" ]; then
 	add_opts "-s"
 fi
 
-# add virtio ring
-if [ "$USE_VIRTIO" = "1" ]; then
-	add_opts "-device virtio-rng-pci,disable-legacy=on,iommu_platform=true"
-fi
-
 # log the console  output in stdout.log
 QEMU_CONSOLE_LOG=`pwd`/stdout.log
 
