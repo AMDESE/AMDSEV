@@ -29,7 +29,7 @@ usage() {
 	echo " -cdrom        CDROM image"
 	echo " -virtio       use virtio devices"
 	echo " -gdb          start gdbserver"
-	exit 1  
+	exit 1
 }
 
 add_opts() {
@@ -165,11 +165,6 @@ fi
 
 # start monitor on pty
 add_opts "-monitor pty"
-
-# add virtio ring
-if [ "$USE_VIRTIO" = "1" ]; then
-	add_opts "-device virtio-rng-pci,disable-legacy=on,iommu_platform=true"
-fi
 
 # log the console  output in stdout.log
 QEMU_CONSOLE_LOG=`pwd`/stdout.log
