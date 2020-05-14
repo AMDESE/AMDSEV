@@ -191,8 +191,8 @@ add_opts "-drive if=pflash,format=raw,unit=0,file=${UEFI_CODE},readonly"
 # add network support and fwd port 22 to 8000
 echo "guest port 22 is fwd to host 8000..."
 #add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22 -device e1000,netdev=vmnic,romfile="
-add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22"
-add_opts " -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile="
+#add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22"
+#add_opts " -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile="
 
 # If harddisk file is specified then add the HDD drive
 if [ -n "${HDA}" ]; then
@@ -220,7 +220,7 @@ if [ ${SEV} = "1" ]; then
 		[ "${ALLOW_DEBUG}" = "1" ] && POLICY=$((POLICY & ~0x01))
 		[ "${SEV_ES}" = "1" ] && POLICY=$((POLICY | 0x04))
 		SEV_POLICY=$(printf ",policy=%#x" $POLICY)
-		SEV_POLICY=",policy=0x90000"
+		SEV_POLICY=",policy=0xB0000"
 	fi
 
 	if [ "${SEV_SNP}" = 1 ]; then
@@ -249,11 +249,6 @@ fi
 
 # start monitor on pty and named socket 'monitor'
 add_opts "-monitor pty -monitor unix:monitor,server,nowait"
-
-# add virtio ring
-if [ "$USE_VIRTIO" = "1" ]; then
-	add_opts "-device virtio-rng-pci,disable-legacy=on,iommu_platform=true"
-fi
 
 # log the console  output in stdout.log
 QEMU_CONSOLE_LOG=`pwd`/stdout.log

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /etc/os-release
+
 # This will install all the dependent packages for qemu and ovmf to run
 if [ "$ID_LIKE" = "debian" ]; then
 	apt-get -y install qemu ovmf
