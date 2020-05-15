@@ -225,6 +225,14 @@ if [ ${SEV} = "1" ]; then
 
 	if [ "${SEV_SNP}" = 1 ]; then
 		SEV_GUEST_SNP=",snp=yes"
+
+		# check if THP is disable
+		cat /sys/kernel/mm/transparent_hugepage/enabled  | grep -w "\[never\]"
+		if [ $? -ne 0 ]; then
+			echo "ERROR: THP is enabled, run the following command to disable it and retry"
+			echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+			exit 1
+		fi
 	fi
 
 	get_cbitpos
