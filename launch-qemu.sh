@@ -220,11 +220,14 @@ if [ ${SEV} = "1" ]; then
 		[ "${ALLOW_DEBUG}" = "1" ] && POLICY=$((POLICY & ~0x01))
 		[ "${SEV_ES}" = "1" ] && POLICY=$((POLICY | 0x04))
 		SEV_POLICY=$(printf ",policy=%#x" $POLICY)
-		SEV_POLICY=",policy=0xB0000"
 	fi
 
 	if [ "${SEV_SNP}" = 1 ]; then
 		SEV_GUEST_SNP=",snp=yes"
+
+		POLICY=$((0x30000))
+		SEV_POLICY=$(printf ",policy=%#x" $POLICY)
+		[ "${ALLOW_DEBUG}" = "1" ] && POLICY=$((POLICY | 0x80000))
 
 		# check if THP is disable
 		cat /sys/kernel/mm/transparent_hugepage/enabled  | grep -w "\[never\]"

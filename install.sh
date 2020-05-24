@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /etc/os-release
+[ -e /etc/os-release ] && . /etc/os-release
 
 # This will install all the dependent packages for qemu and ovmf to run
 if [ "$ID_LIKE" = "debian" ]; then
@@ -15,23 +15,6 @@ else
 	rpm -ivh linux/kernel-*.rpm
 fi
 
-# update grub.cfg to disable THP
-if ! grep "transparent_hugepage=never" /etc/default/grub >/dev/null; then
-	orig_cmdline="`grep GRUB_CMDLINE_LINUX /etc/default/grub | cut -f2- -d=`"
-	cmdline="${orig_cmdline::-1}"
-	cmdline="${cmdline:1}"
-	cmdline="${cmdline} transparent_hugepage=never"
-
-	sed -i "/GRUB_CMDLINE_LINUX/c\GRUB_CMDLINE_LINUX=\"${cmdline}\"" /etc/default/grub
-
-	if [ "$ID_LIKE" = "debian" ]; then
-		update-grub2
-	else
-		grub2-mkconfig
-	fi
-fi
-
-# 
 cp kvm.conf /etc/modprobe.d/
 
 echo
