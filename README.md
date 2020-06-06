@@ -21,11 +21,10 @@ Reboot the host and choose SNP kernel from the grub menu.
 Run the following command to verify that SNP is enabled in the host.
 
 ````
-# dmesg | grep -i rmp
-SVM: SNP: RMP physical range 0x0000000098500000 - 0x00000000a89fffff
-SVM: SNP: RMP table 0xffffa07000000000+0x104fffff
-SVM: SNP: SYSCFG MEM_ENCRYPT: enabled SNP_EN: enabled VMPL_EN: enabled RMP_BASE: 0x98500000 RMP_END: 0xa89fffff
-SVM: SNP: rmp setup completed!
+# dmesg | grep -i snp
+ccp 0000:42:00.1: snp enabled 
+SEV-SNP API:0.31 build:43
+SEV-SNP supported: 99 ASIDs
 
 # cat /sys/module/kvm_amd/parameters/sev
 1
@@ -57,7 +56,7 @@ Once the guest is booted, run the following command inside the guest VM to verif
 
 ````
 $ dmesg | grep -i snp
-AMD Secure Nested Paging (SEV-SNP) active
+AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 ````
 
 ## Reference
