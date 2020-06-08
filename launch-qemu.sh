@@ -189,10 +189,10 @@ add_opts "-no-reboot"
 add_opts "-drive if=pflash,format=raw,unit=0,file=${UEFI_CODE},readonly"
 
 # add network support and fwd port 22 to 8000
-echo "guest port 22 is fwd to host 8000..."
+# echo "guest port 22 is fwd to host 8000..."
 #add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22 -device e1000,netdev=vmnic,romfile="
-#add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22"
-#add_opts " -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile="
+add_opts "-netdev user,id=vmnic"
+add_opts " -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile="
 
 # If harddisk file is specified then add the HDD drive
 if [ -n "${HDA}" ]; then
