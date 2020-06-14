@@ -37,6 +37,8 @@ build_kernel()
 		run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT
 		run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
 		run_cmd ./scripts/config --enable  CONFIG_X86_CPUID
+		run_cmd ./scripts/config --disable CONFIG_HW_RANDOM_VIRTIO
+		run_cmd ./scripts/config --disable CONFIG_CRYPTO_DEV_VIRTIO
 	popd >/dev/null
 
 	run_cmd $MAKE olddefconfig
