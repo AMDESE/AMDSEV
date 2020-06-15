@@ -33,6 +33,8 @@ build_kernel()
 	./scripts/config --module CRYPTO_DEV_CCP_DD
 	./scripts/config --enable CONFIG_CRYPTO_DEV_CCP
 	./scripts/config --disable CONFIG_LOCALVERSION_AUTO
+	./scripts/config --disable CONFIG_HW_RANDOM_VIRTIO
+	./scripts/config --disable CONFIG_CRYPTO_DEV_VIRTIO
 	yes "" | make olddefconfig
 
 	run_cmd "make -j `getconf _NPROCESSORS_ONLN` bindeb-pkg LOCALVERSION=-sev"
