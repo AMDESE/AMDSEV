@@ -435,41 +435,8 @@ Latest version of openSUSE Tumbleweed distro contains all the pre-requisite pack
 <a name="tumbleweed-launch-vm"></a>  
 ### Launch SEV VM
 
-Since virt-manager does not support SEV yet hence we need to use 'virsh' command to launch the SEV guest. See xmls/sample.xml on how to add SEV specific information in existing xml. Use the following command to launch SEV guest
+The SEV support is available in the latest libvirt, follow the https://libvirt.org/kbase/launch_security_sev.html to use the libvirt to create and manage the SEV guest.
 
-```
-# virsh create sample.xml
-```
-
-> The sample xml was generated through virt-manager and then edited with SEV specific information. The main changes are:
->
->* For virtio devices we need to enable DMA APIs. The DMA APIs are enable through <b><driver iommu='on'/></b> (aka iommu_platform=on) tag
-
-```
-    <controller type='virtio-serial' index='0'> 
-      <driver iommu='on' /> 
-      <alias name='virtio-serial0'/>
-      <address type='pci' domain='0x0000' bus='0x02' slot='0x00' function='0x0'/> 
-    </controller>
- ``` 
-> * Add LaunchSecurity tag to tell libvirt to enable memory-encryption
-
-```
-    <launchSecurity type='sev'>
-      <policy>0x0001</policy>
-      <cbitpos>47</cbitpos>
-      <reducedPhysBits>1</reducedPhysBits>
-    </launchSecurity>
-```
-
-> * QEMU pins the guest memory during the SEV guest launch hence we need to set the domain specific memory parameters to raise the memlock rlimits. e.g the below <b>memtune</b> tags raise the memlock limit to 5GB.
-
-```
-    <memtune>
-      <hard_limit unit='G'>5</hard_limit>
-      <soft_limit unit='G'>5</soft_limit>
-    </memtune>  
-```
 
 <a name="kata"></a>
 ## SEV Containers
@@ -496,6 +463,8 @@ For installation instructions on Ubuntu systems, see the [README](https://github
 [Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
 
 [Libvirt LaunchSecurity tag](https://libvirt.org/formatdomain.html#sev)
+
+[Libvirt SEV](https://libvirt.org/kbase/launch_security_sev.html)
 
 [Libvirt SEV domainCap](https://libvirt.org/formatdomaincaps.html#elementsSEV)
 
