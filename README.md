@@ -450,7 +450,7 @@ For installation instructions on Ubuntu systems, see the [README](https://github
 
 [SME/SEV white paper](http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/12/AMD_Memory_Encryption_Whitepaper_v7-Public.pdf)
 
-[SEV API Spec](http://support.amd.com/TechDocs/55766_SEV-KM%20API_Specification.pdf)
+[SEV API Spec](https://www.amd.com/system/files/TechDocs/55766_SEV-KM_API_Specification.pdf)
 
 [APM Section 15.34](http://support.amd.com/TechDocs/24593.pdf)
 
