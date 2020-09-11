@@ -228,14 +228,6 @@ if [ ${SEV} = "1" ]; then
 		POLICY=$((0x30000))
 		SEV_POLICY=$(printf ",policy=%#x" $POLICY)
 		[ "${ALLOW_DEBUG}" = "1" ] && POLICY=$((POLICY | 0x80000))
-
-		# check if THP is disable
-		cat /sys/kernel/mm/transparent_hugepage/enabled  | grep -w "\[never\]"
-		if [ $? -ne 0 ]; then
-			echo "ERROR: THP is enabled, run the following command to disable it and retry"
-			echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
-			exit 1
-		fi
 	fi
 
 	get_cbitpos
