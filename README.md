@@ -35,13 +35,13 @@ but example configurations are present in the kernel repository.
 Scripts are provided to pull the repositories from this project and  build the
 various components to enable SEV-ES.
 
-To enable the SEV-ES support we need the following:
+To enable the SEV-ES support the following are the current levels:
 
 | Project       | Repository and Branch                             |
 | ------------- |:-------------------------------------------------:|
-| kernel        | https://github.com/AMDESE/linux.git sev-es-5.6-v2 |
-| qemu          | https://github.com/AMDESE/qemu.git  sev-es-v5     |
-| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es-v13    |
+| kernel        | https://github.com/AMDESE/linux.git sev-es-5.9-v1 |
+| qemu          | https://github.com/AMDESE/qemu.git  sev-es-v12    |
+| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es-v26    |
 
 > * SEV-ES support is not available in SeaBIOS, OVMF must be used.
 
@@ -168,6 +168,14 @@ for additional information.
    b) Use qemu QMP 'query-sev-capabilities' command to check the SEV support. If SEV is supported then command will return the full SEV capabilities (which includes host PDH, cert-chain, cbitpos and reduced-phys-bits).
    
      > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
+
+   c) Check the kernel log buffer for the following messages (SEV API version may differ)
+   ```
+   # dmesg | grep SEV
+   [   27.306251] ccp 0000:22:00.1: SEV API:0.23 build:4
+   [   29.373901] SEV supported: 446 ASIDs
+   [   29.373902] SEV-ES supported: 63 ASIDs
+   ```
   
 <a name="faq-2"></a>
  * <b>How do I know if SEV or SEV-ES is enabled in the guest?</b>
@@ -175,8 +183,7 @@ for additional information.
    a) Check the kernel log buffer for the following message
    ```
    # dmesg | grep SEV
-   AMD Secure Encrypted Virtualization (SEV) active   --- or ---
-   AMD Secure Encrypted Virtualization - Encrypted State (SEV-ES) active
+   [    0.374549] AMD Memory Encryption Features active: SEV SEV-ES
    ```
    
    b) MSR 0xc0010131 (MSR_AMD64_SEV) can be used to determine if SEV is active
@@ -200,7 +207,7 @@ for additional information.
 <a name="faq-4"></a>
  * <b>How to increase SWIOTLB limit?</b>
  
- When SEV is enabled, all the DMA operations inside the guest are performed in shared memory. The Linux kernel uses the SWIOTLB bounce buffer for DMA operations inside an SEV guest. A guest panic will occur if the kernel runs out of SWIOTLB memory. The Linux kernel defaults to 64MB of SWIOTLB memory. It is recommended to increase the SWIOTLB memory size to 512MB. This can be done by appending the following to the kernel command line (edit /etc/defaults/grub):
+ When SEV is enabled, all the DMA operations inside the guest are performed in shared memory. The Linux kernel uses the SWIOTLB bounce buffer for DMA operations inside an SEV guest. A guest panic can occur if the kernel runs out of SWIOTLB memory. The Linux kernel defaults to 64MB of SWIOTLB memory. It is recommended to increase the SWIOTLB memory size to 512MB. This can be done by appending the following to the kernel command line (edit /etc/defaults/grub):
  
 ```
 GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"

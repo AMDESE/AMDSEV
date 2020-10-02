@@ -32,10 +32,10 @@ build_kernel()
 
 	pushd linux >/dev/null
 		run_cmd cp /boot/config-$(uname -r) .config
-		run_cmd ./scripts/config --set-str LOCALVERSION "-sev-es"
-		run_cmd ./scripts/config --disable LOCALVERSION_AUTO
-		run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT
-		run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+		run_cmd ./scripts/config --set-str CONFIG_LOCALVERSION "-sev-es"
+		run_cmd ./scripts/config --disable CONFIG_LOCALVERSION_AUTO
+		run_cmd ./scripts/config --enable  CONFIG_AMD_MEM_ENCRYPT
+		run_cmd ./scripts/config --enable  CONFIG_AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
 		run_cmd ./scripts/config --enable  CONFIG_X86_CPUID
 		run_cmd ./scripts/config --disable CONFIG_HW_RANDOM_VIRTIO
 		run_cmd ./scripts/config --disable CONFIG_CRYPTO_DEV_VIRTIO
