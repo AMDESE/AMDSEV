@@ -35,13 +35,13 @@ but example configurations are present in the kernel repository.
 Scripts are provided to pull the repositories from this project and  build the
 various components to enable SEV-ES.
 
-To enable the SEV-ES support the following are the current levels:
+To enable the SEV-ES support, the following levels of software are required:
 
 | Project       | Repository and Branch                             |
 | ------------- |:-------------------------------------------------:|
-| kernel        | https://github.com/AMDESE/linux.git sev-es-5.9-v1 |
+| kernel        | https://github.com/AMDESE/linux.git sev-es-v3     |
 | qemu          | https://github.com/AMDESE/qemu.git  sev-es-v12    |
-| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es-v26    |
+| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es-v27    |
 
 > * SEV-ES support is not available in SeaBIOS, OVMF must be used.
 
@@ -80,6 +80,10 @@ Ensure SEV-ES ASIDs are available
 	[   27.715445] SVM: SEV supported: 478 ASIDs
 	[   27.715447] SVM: SEV-ES supported: 31 ASIDs
 
+* If you built the kernel without using the script, then you may need to
+  ensure that SEV and SEV-ES are enabled in KVM. Append the following to
+  the the kernel command line options:
+  * "kvm_amd.sev=1 kvm_amd.sev_es=1"
 
 ```
 # ./build.sh
