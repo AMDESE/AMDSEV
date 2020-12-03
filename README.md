@@ -59,6 +59,12 @@ Build and install newer components
 * Qemu and OVMF files will be installed in /usr/local/.
 * Use the apppropriate tool (rpm, dpkg, etc.) to install the hypervisor
   kernel package.
+  * Note: The type of kernel package built is based a test in the
+    build_kernel() function of the build/common.sh script. If the test
+    [ "$ID_LIKE" = "debian" ] returns true then a deb package is built,
+    otherwise an rpm is built. If this test is not working on your system
+    or you desire a specific type of package, you can edit the script
+    to build the desired package.
 
 NOTE: The script WILL NOT install the packages needed to build everything
 sucessfully. It is up to you to install the required packages to build the
