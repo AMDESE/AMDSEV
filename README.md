@@ -1,4 +1,4 @@
-Follow the below steps to build and run the SEV-SNP guest. The step below are tested on Fedora 31 host and guest.
+Follow the below steps to build and run the SEV-SNP guest. The step below are tested on Ubuntu 20.04 host and guest.
 
 ## Build and Install
 
@@ -6,7 +6,7 @@ Follow the below steps to build and run the SEV-SNP guest. The step below are te
 # git clone https://github.com/AMDESE/AMDSEV.git
 # git checkout sev-snp-devel
 # ./build.sh
-# sudo rpm -ivh kernel-*.rpm
+# sudo dpkg -ivh linux-*.rpm
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
 
@@ -16,7 +16,9 @@ Run the following command to verify that SNP is enabled in the host.
 
 ````
 # dmesg | grep -i snp
-SEV-SNP API:0.31 build:43
+SEV-SNP API:1.22 build:22
+SEV supported: 410 ASIDs
+SEV-ES supported: 99 ASIDs
 SEV-SNP supported: 99 ASIDs
 
 # cat /sys/module/kvm_amd/parameters/sev
@@ -30,7 +32,7 @@ SEV-SNP supported: 99 ASIDs
 
 ## Prepare Guest
 
-Boot up the FC31 guest and install the kernel package built in the previous step.
+Boot up the Ubuntu 20.04 guest and install the kernel package built in the previous step.
 
 ## Launch SNP Guest
 
