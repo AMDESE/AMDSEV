@@ -8,7 +8,7 @@ KERNEL_BRANCH="sev-snp-part-2-rfc1"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
-QEMU_BRANCH="sev-es-v7+snp"
+QEMU_BRANCH="sev-es-v13+snp"
 
 # guest bios
 OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
