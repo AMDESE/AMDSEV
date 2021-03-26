@@ -23,25 +23,19 @@ types of world switches are about to occur through a new exception. This allows
 the guest operating system to selective share information with the hypervisor
 when needed for functionality.
 
-SEV-ES support has not yet been submitted/accepted in upstream projects. This
-project contains repositories that provide proof-of-concept patches to show how
-an SEV-ES guest would function. It is intended that these patches will be
-improved upon for eventual submission upstream.
+SEV-ES support has been submitted and accepted in upstream projects. The
+upstream version of the projects should be used.
 
-Currently a different kernel configuration is required for the hypervisor and
-the guest. The scripts that build the kernels will make the necessary changes,
-but example configurations are present in the kernel repository.
-
-Scripts are provided to pull the repositories from this project and  build the
-various components to enable SEV-ES.
+Scripts are provided to pull the minimum required levels of the repositories
+to build the various components to enable SEV-ES.
 
 To enable the SEV-ES support, the following levels of software are required:
 
-| Project       | Repository and Branch                             |
-| ------------- |:-------------------------------------------------:|
-| kernel        | https://github.com/AMDESE/linux.git sev-es-v3     |
-| qemu          | https://github.com/AMDESE/qemu.git  sev-es-v12    |
-| ovmf          | https://github.com/AMDESE/ovmf.git  sev-es-v27    |
+| Project       | Version                         |
+| ------------- |:-------------------------------:|
+| kernel        | >= 5.11                         |
+| qemu          | >= 6.0                          |
+| ovmf          | >= edk2-stable202102            |
 
 > * SEV-ES support is not available in SeaBIOS, OVMF must be used.
 
@@ -132,7 +126,8 @@ Use the following command to launch an SEV-ES guest
 ```
 # ./launch-qemu.sh -hda <IMAGE_NAME>.qcow2 -vnc 1 -console serial -sev-es
 ```
-NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the guest
+NOTE: when the guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop
+the guest
 
 Select the newly installed SEV-ES kernel to boot.
 

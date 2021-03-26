@@ -3,13 +3,13 @@
 #
 
 # hypervisor commit
-KERNEL_GIT_URL="https://github.com/AMDESE/linux.git"
-KERNEL_BRANCH="sev-es-v3"
+KERNEL_GIT_URL="https://github.com/torvalds/linux.git"
+KERNEL_GIT_TAG="v5.11"
 
 # qemu commit
-QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
-QEMU_BRANCH="sev-es-v12"
+QEMU_GIT_URL="https://github.com/qemu/qemu.git"
+QEMU_GIT_TAG="v6.0.0"
 
 # guest bios
-OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
-OVMF_BRANCH="sev-es-v27"
+OVMF_GIT_URL="https://github.com/tianocore/edk2.git"
+OVMF_GIT_TAG="edk2-stable202102"

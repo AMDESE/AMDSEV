@@ -13,7 +13,8 @@ run_cmd()
 build_kernel()
 {
 	[ -d linux ] || {
-		run_cmd git clone --single-branch -b ${KERNEL_BRANCH} ${KERNEL_GIT_URL} linux
+		run_cmd git clone ${KERNEL_GIT_URL} linux
+		run_cmd git checkout ${KERNEL_GIT_TAG}
 	}
 
 	[ -d linux-patches ] && {
@@ -36,6 +37,11 @@ build_kernel()
 		run_cmd ./scripts/config --disable CONFIG_LOCALVERSION_AUTO
 		run_cmd ./scripts/config --enable  CONFIG_AMD_MEM_ENCRYPT
 		run_cmd ./scripts/config --enable  CONFIG_AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+		run_cmd ./scripts/config --enable  CONFIG_CRYPTO_DEV_CCP
+		run_cmd ./scripts/config --module  CONFIG_CRYPTO_DEV_CCP_DD
+		run_cmd ./scripts/config --enable  CONFIG_CRYPTO_DEV_SP_CCP
+		run_cmd ./scripts/config --module  CONFIG_KVM_AMD
+		run_cmd ./scripts/config --enable  CONFIG_KVM_AMD_SEV
 		run_cmd ./scripts/config --enable  CONFIG_X86_CPUID
 		run_cmd ./scripts/config --disable CONFIG_HW_RANDOM_VIRTIO
 		run_cmd ./scripts/config --disable CONFIG_CRYPTO_DEV_VIRTIO
@@ -71,7 +77,8 @@ build_install_ovmf()
 	BUILD_CMD="nice build -q --cmd-len=64436 -DDEBUG_ON_SERIAL_PORT=TRUE -n $(getconf _NPROCESSORS_ONLN) ${GCCVERS:+-t $GCCVERS} -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
 
 	[ -d ovmf ] || {
-		run_cmd git clone --single-branch -b ${OVMF_BRANCH} ${OVMF_GIT_URL} ovmf
+		run_cmd git clone ${OVMF_GIT_URL} ovmf
+		run_cmd git checkout ${OVMF_GIT_TAG}
 
 		pushd ovmf >/dev/null
 			run_cmd git submodule update --init --recursive
@@ -104,7 +111,8 @@ build_install_qemu()
 	DEST="$1"
 
 	[ -d qemu ] || {
-		run_cmd git clone --single-branch -b ${QEMU_BRANCH} ${QEMU_GIT_URL} qemu
+		run_cmd git clone ${QEMU_GIT_URL} qemu
+		run_cmd git checkout ${QEMU_GIT_TAG}
 	}
 
 	[ -d qemu-patches ] && {
