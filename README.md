@@ -40,7 +40,7 @@ SEV is an extension to the AMD-V architecture which supports running encrypted
 virtual machine (VMs) under the control of KVM. Encrypted VMs have their pages
 (code and data) secured such that only the guest itself has access to the
 unencrypted version. Each encrypted VM is associated with a unique encryption
-key; if its data is accessed to a different entity using a different key the
+key; if its data is accessed by a different entity using a different key, the
 encrypted guests data will be incorrectly decrypted, leading to unintelligible
 data. 
 
@@ -48,7 +48,7 @@ SEV support has been accepted in upstream projects. This repository provides
 scripts to build various components to enable SEV support until the distros
 pick the newer version of components.
 
-To enable the SEV support we need the following versions.
+To enable SEV support we need the following versions.
 
 | Project       | Version                              |
 | ------------- |:------------------------------------:|
@@ -56,6 +56,15 @@ To enable the SEV support we need the following versions.
 | libvirt       | >= 4.5                               |
 | qemu          | >= 2.12                              |
 | ovmf          | >= commit (75b7aa9528bd 2018-07-06 ) |
+
+To enable SEV-ES support we need the following versions.
+
+| Project       | Version/Tag                          |
+| ------------- |:------------------------------------:|
+| kernel        | >= 5.11                              |
+| libvirt       | >= 4.5                               |
+| qemu          | >= 6.00                              |
+| ovmf          | >= edk2-stable202102                 |
 
 > * Installing newer libvirt may conflict with existing setups hence script does
 >   not install the newer version of libvirt. If you are interested in launching
@@ -69,7 +78,7 @@ To enable the SEV support we need the following versions.
 
 ## SLES-15
 
-SUSE Linux Enterprise Server 15 GA includes the SEV support; we do not need
+SUSE Linux Enterprise Server 15 GA includes SEV support; we do not need
 to compile the sources.
 
 > SLES-15 does not contain the updated libvirt packages yet hence we will
@@ -83,7 +92,7 @@ SEV is not enabled by default, lets enable it through kernel command line:
 Append the following in /etc/defaults/grub
 
 ```
-GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+GRUB_CMDLINE_LINUX_DEFAULT=".... kvm_amd.sev=1"
 ```
 
 Regenerate grub.cfg and reboot the host
@@ -136,7 +145,7 @@ NOTE: when guest is booting, CTRL-C is mapped to CTRL-], use CTRL-] to stop the 
 
 ## RHEL-8
 
-RedHat Enterprise Linux 8.0 GA includes the SEV support; we do not need
+RedHat Enterprise Linux 8.0 GA includes SEV support; we do not need
 to compile the sources.
 
 <a name="rhel-8-host"></a>
@@ -147,7 +156,7 @@ SEV is not enabled by default, lets enable it through kernel command line:
 Append the following in /etc/defaults/grub
 
 ```
-GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+GRUB_CMDLINE_LINUX_DEFAULT=".... kvm_amd.sev=1"
 ```
 
 Regenerate grub.cfg and reboot the host
@@ -211,7 +220,7 @@ SEV is not enabled by default, lets enable it through kernel command line:
 Append the following in /etc/defaults/grub
 
 ```
-GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+GRUB_CMDLINE_LINUX_DEFAULT=".... kvm_amd.sev=1"
 ```
 
 Regenerate grub.cfg and reboot the host
@@ -296,7 +305,7 @@ Fedora-29 contains all the pre-requisite packages to launch an SEV guest. But th
 * By default SEV is disabled, append the following in /etc/defaults/grub
 
     ```
-     GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+     GRUB_CMDLINE_LINUX_DEFAULT=".... kvm_amd.sev=1"
     ```
 
     Regenerate grub.cfg and reboot the host
@@ -424,7 +433,7 @@ Latest version of openSUSE Tumbleweed distro contains all the pre-requisite pack
 
   Append the following in /etc/defaults/grub
   ```
-   GRUB_CMDLINE_LINUX_DEFAULT=".... mem_encrypt=on kvm_amd.sev=1"
+   GRUB_CMDLINE_LINUX_DEFAULT=".... kvm_amd.sev=1"
   ```
   Regenerate grub.cfg and reboot the host
 

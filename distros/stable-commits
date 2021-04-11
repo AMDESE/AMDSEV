@@ -12,6 +12,7 @@ QEMU_COMMIT=v2.12.0
 
 # guest bios
 EDK2_GIT_URL=https://github.com/tianocore/edk2.git
+EDK2_COMMIT=edk2-stable201808
 
 # libvirt commit
 LIBVIRT_GIT_URL=https://libvirt.org/git/libvirt.git
