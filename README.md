@@ -6,7 +6,7 @@ Follow the below steps to build and run the SEV-SNP guest. The step below are te
 # git clone https://github.com/AMDESE/AMDSEV.git
 # git checkout sev-snp-devel
 # ./build.sh
-# sudo dpkg -ivh linux-*.rpm
+# sudo dpkg -ivh linux-image*.deb
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
 
@@ -16,7 +16,7 @@ Run the following command to verify that SNP is enabled in the host.
 
 ````
 # dmesg | grep -i snp
-SEV-SNP API:1.22 build:22
+SEV-SNP API:1.28 build:28
 SEV supported: 410 ASIDs
 SEV-ES supported: 99 ASIDs
 SEV-SNP supported: 99 ASIDs
