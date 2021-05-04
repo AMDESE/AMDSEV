@@ -14,7 +14,9 @@ build_kernel()
 {
 	[ -d linux ] || {
 		run_cmd git clone ${KERNEL_GIT_URL} linux
-		run_cmd git checkout ${KERNEL_GIT_TAG}
+		pushd linux >/dev/null
+			run_cmd git checkout ${KERNEL_GIT_TAG}
+		popd >/dev/null
 	}
 
 	[ -d linux-patches ] && {
@@ -78,7 +80,9 @@ build_install_ovmf()
 
 	[ -d ovmf ] || {
 		run_cmd git clone ${OVMF_GIT_URL} ovmf
-		run_cmd git checkout ${OVMF_GIT_TAG}
+		pushd ovmf >/dev/null
+			run_cmd git checkout ${OVMF_GIT_TAG}
+		popd >/dev/null
 
 		pushd ovmf >/dev/null
 			run_cmd git submodule update --init --recursive
@@ -112,7 +116,9 @@ build_install_qemu()
 
 	[ -d qemu ] || {
 		run_cmd git clone ${QEMU_GIT_URL} qemu
-		run_cmd git checkout ${QEMU_GIT_TAG}
+		pushd qemu >/dev/null
+			run_cmd git checkout ${QEMU_GIT_TAG}
+		popd >/dev/null
 	}
 
 	[ -d qemu-patches ] && {
