@@ -4,7 +4,7 @@
 
 # hypervisor commit
 KERNEL_GIT_URL="https://github.com/AMDESE/linux.git"
-KERNEL_BRANCH="sev-snp-part-2-rfc2"
+KERNEL_BRANCH="sev-snp-part2-rfc3"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
@@ -12,4 +12,4 @@ QEMU_BRANCH="sev-snp-devel"
 
 # guest bios
 OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
-OVMF_BRANCH="sev-snp-rfc-2"
+OVMF_BRANCH="sev-snp-rfc-3"
