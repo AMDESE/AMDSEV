@@ -47,6 +47,7 @@ build_kernel()
 		run_cmd ./scripts/config --enable  CONFIG_X86_CPUID
 		run_cmd ./scripts/config --disable CONFIG_HW_RANDOM_VIRTIO
 		run_cmd ./scripts/config --disable CONFIG_CRYPTO_DEV_VIRTIO
+		run_cmd ./scripts/config --enable  CONFIG_DEBUG_INFO_REDUCED
 	popd >/dev/null
 
 	run_cmd $MAKE olddefconfig
