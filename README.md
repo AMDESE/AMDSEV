@@ -118,6 +118,9 @@ After guest installation completes, reboot into the guest, transfer the kernel
 package that was build earlier to the guest and use the apppropriate tool (rpm,
 dpkg, etc.) to install the kernel.
 
+NOTE: If the guest reboots into the installation CD again, you should terminate
+the guest (using CTRL-]) and relaunch the guest without the -cdrom option.
+
 <a name="sev-es-launch-guest"></a>
 ### Launch SEV-ES guest
 
