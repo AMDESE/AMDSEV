@@ -53,6 +53,7 @@ run_cmd () {
 }
 
 get_cbitpos() {
+	modprobe cpuid
 	#
 	# Get C-bit position directly from the hardware
 	#   Reads of /dev/cpu/x/cpuid have to be 16 bytes in size
@@ -215,6 +216,9 @@ fi
 
 # If this is SEV guest then add the encryption device objects to enable support
 if [ ${SEV} = "1" ]; then
+	add_opts "-machine memory-encryption=sev0,vmport=off" 
+	get_cbitpos
+
 	if [ "${ALLOW_DEBUG}" = "1" -o "${SEV_ES}" = 1 ]; then
 		POLICY=$((0x01))
 		[ "${ALLOW_DEBUG}" = "1" ] && POLICY=$((POLICY & ~0x01))
@@ -223,17 +227,10 @@ if [ ${SEV} = "1" ]; then
 	fi
 
 	if [ "${SEV_SNP}" = 1 ]; then
-		SEV_GUEST_SNP=",snp=yes"
-
-		POLICY=$((0x30000))
-		SEV_POLICY=$(printf ",policy=%#x" $POLICY)
-		[ "${ALLOW_DEBUG}" = "1" ] && POLICY=$((POLICY | 0x80000))
+		add_opts "-object sev-snp-guest,id=sev0,cbitpos=${CBITPOS},reduced-phys-bits=1"
+	else
+		add_opts "-object sev-guest,id=sev0${SEV_POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1"
 	fi
-
-	get_cbitpos
-
-	add_opts "-object sev-guest,id=sev0${SEV_POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1${SEV_GUEST_SNP}"
-	add_opts "-machine memory-encryption=sev0,vmport=off"
 fi
 
 # if -kernel arg is specified then use the kernel provided in command line for boot
