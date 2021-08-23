@@ -99,7 +99,7 @@ build_install_qemu()
 	MAKE="make -j $(getconf _NPROCESSORS_ONLN) LOCALVERSION="
 
 	pushd qemu >/dev/null
-		run_cmd ./configure --target-list=x86_64-softmmu --disable-werror --prefix=$DEST --enable-trace-backend=log --enable-debug --extra-cflags="-g3" --extra-ldflags="-g3" --disable-strip --disable-pie --disable-werror --disable-glusterfs
+		run_cmd ./configure --target-list=x86_64-softmmu --prefix=$DEST
 		run_cmd $MAKE
 		run_cmd $MAKE install
 	popd >/dev/null
