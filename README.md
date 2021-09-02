@@ -30,7 +30,8 @@
   * [ How do I know if SEV is enabled in the guest](#faq-2)
   * [ Can I use virt-manager to launch SEV guest](#faq-3)
   * [ How to increase SWIOTLB limit](#faq-4)
-  * [ virtio-blk fails with out-of-dma-buffer error](#faq-5)  
+  * [ virtio-blk fails with out-of-dma-buffer error](#faq-5) 
+  * [ SEV-INIT fails with error 0x13](#faq-6)
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
