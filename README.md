@@ -537,7 +537,7 @@ And regenerate the grub.cfg.
  <a name="faq-6"></a>
  * <b>SEV_INIT fails with error 0x13 </b>
  
- The error 0x13 is a defined as HWERROR_PLATFORM in the SEV specification. The error indicates that memory encryption support is not enabled the host BIOS. Look for  the SMEE setting in your BIOS menu and explicitly enable it. You can verify that SMEE is enabled on your machine by running the below command
+ The error 0x13 is a defined as HWERROR_PLATFORM in the SEV specification. The error indicates that memory encryption support is not enabled in the host BIOS. Look for  the SMEE setting in your BIOS menu and explicitly enable it. You can verify that SMEE is enabled on your machine by running the below command
  ```
  $ sudo modprobe msr
  $ sudo rdmsr  0xc0010010
