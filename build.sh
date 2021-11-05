@@ -76,7 +76,7 @@ if [[ "$BUILD_PACKAGE" = "1" ]]; then
 	mkdir -p $OUTPUT_DIR/usr
 	cp -dpR $INSTALL_DIR $OUTPUT_DIR/usr/
 
-	if [ "$ID_LIKE" = "debian" ]; then
+	if [[ "$ID_LIKE" = "debian" || "$ID" = "debian" ]]; then
 		cp linux-*.deb $OUTPUT_DIR/linux -v
 	else
 		cp kernel-*.rpm $OUTPUT_DIR/linux -v

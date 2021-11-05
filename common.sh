@@ -46,7 +46,7 @@ build_kernel()
 		# Build 
 		run_cmd $MAKE >/dev/null
 
-		if [ "$ID_LIKE" = "debian" ]; then
+		if [[ "$ID_LIKE" = "debian" || "$ID" = "debian" ]]; then
 			run_cmd $MAKE bindeb-pkg
 		else
 			run_cmd $MAKE "RPMOPTS='--define \"_rpmdir .\"'" binrpm-pkg
