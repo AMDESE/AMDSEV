@@ -6,7 +6,7 @@ Follow the below steps to build and run the SEV-SNP guest. The step below are te
 # git clone https://github.com/AMDESE/AMDSEV.git
 # git checkout sev-snp-devel
 # ./build.sh
-# sudo dpkg -ivh linux-image*.deb
+# sudo dpkg -i linux-image*.deb
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
 
