@@ -1,38 +1,67 @@
 Follow the below steps to build and run the SEV-SNP guest. The step below are tested on Ubuntu 20.04 host and guest.
 
-## Build and Install
+## Build
+
+The following command builds the host and guest Linux kernel, qemu and ovmf bios used for launching SEV-SNP guest.
 
 ````
 # git clone https://github.com/AMDESE/AMDSEV.git
 # git checkout sev-snp-devel
-# ./build.sh
+# ./build.sh --package
 # sudo dpkg -ivh linux-image*.deb
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
+On succesful build, the binaries will be available in snp-release-<DATE>.
 
-Reboot the host and choose SNP kernel from the grub menu. 
+## Prepare Host
+
+Verify that the following BIOS settings are enabled. The setting may vary based on the vendor BIOS. The menu option below are from AMD BIOS.
+  
+```
+  CBS -> CPU Common ->
+                SEV-ES ASID space Limit Control -> Manual
+                SEV-ES ASID space limit -> 100
+                SNP Memory Coverage -> Enabled 
+                SMEE → Enabled
+          → NBIO common →
+                SEV-SNP → Enabled
+```
+  
+Run the following command to install the Linux kernel on the host machine.
+
+```
+# cd snp-release-<date>
+# ./install.sh
+```
+
+Reboot the machine and choose SNP Host kernel from the grub menu.
 
 Run the following command to verify that SNP is enabled in the host.
 
 ````
-# dmesg | grep -i snp
-SEV-SNP API:1.28 build:28
-SEV supported: 410 ASIDs
-SEV-ES supported: 99 ASIDs
-SEV-SNP supported: 99 ASIDs
+# uname -r
+5.14.0-rc2-snp-host
 
+# dmesg | grep -i -e rmp -e sev
+SEV-SNP: RMP table physical address 0x0000000035600000 - 0x0000000075bfffff
+ccp 0000:23:00.1: sev enabled
+ccp 0000:23:00.1: SEV-SNP API:1.40 build:40
+SEV supported: 410 ASIDs
+SEV-ES and SEV-SNP supported: 99 ASIDs
 # cat /sys/module/kvm_amd/parameters/sev
-1
+Y
 # cat /sys/module/kvm_amd/parameters/sev_es 
-1
+Y
 # cat /sys/module/kvm_amd/parameters/sev_snp 
-1
+Y
 
 ````
-
+  
+*NOTE: If you SEV-SNP firmware is olader than 1.40 then see the "Upgrade SEV firmware" section to upgrade the firmware. *
+  
 ## Prepare Guest
 
-Boot up the Ubuntu 20.04 guest and install the kernel package built in the previous step.
+Boot up the Ubuntu 20.04 guest and install the kernel package built in the previous step. The guest kernel package is available in 'snp-release-<DATE>/linux/guest' directory.
 
 ## Launch SNP Guest
 
@@ -50,6 +79,20 @@ Once the guest is booted, run the following command inside the guest VM to verif
 $ dmesg | grep -i snp
 AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 ````
+
+## Upgrade SEV firmware
+
+The SEV-SNP support requires firmware version >= 1.40:40. The latest SEV-SNP firmware is available on developer.amd.com/sev and on linux-firmware project.
+Follow the below step to upgrade to latest firmware
+
+```
+# wget https://developer.amd.com/wp-content/resources/amd_sev_fam19h_model0xh_1.2A.2A.zip
+# unzip amd_sev_fam19h_model0xh_1.2A.2A.zip
+# sudo mkdir -p /lib/firmware/amd
+# sudo cp amd_sev_fam19h_model0xh_1.2A.2A.sbin /lib/firmware/amd/amd as amd_sev_fam19h_model0xh.bin
+```
+Either reboot the host or reload the ccp driver to complete the firmware upgrade process.
+
 
 ## Reference
 
