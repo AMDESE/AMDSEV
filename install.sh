@@ -10,7 +10,7 @@ else
 fi
 
 if [ "$ID_LIKE" = "debian" ]; then
-	dpkg -i linux/linux-image-*.deb
+	dpkg -i linux/host/linux-image-*.deb
 else
 	rpm -ivh linux/kernel-*.rpm
 fi
@@ -18,5 +18,5 @@ fi
 cp kvm.conf /etc/modprobe.d/
 
 echo
-echo "Reboot the host and select the SNP kernel"
+echo "Reboot the host and select the SNP Host kernel"
 echo

@@ -12,33 +12,36 @@ run_cmd()
 
 build_kernel()
 {
-	[ -d linux ] || {
-		run_cmd git clone --single-branch -b ${KERNEL_BRANCH} ${KERNEL_GIT_URL} linux
-	}
+	set -x
+	mkdir -p linux
+	pushd linux >/dev/null
 
-	[ -d linux-patches ] && {
-		pushd linux >/dev/null
-			run_cmd git checkout .
-		popd >/dev/null
+	for V in guest host; do
+		[ -d ${V} ] || {
+			if [ "${1}" = "guest" ]; then
+				BRANCH="${KERNEL_GUEST_BRANCH}"
+			else
+				BRANCH="${KERNEL_HOST_BRANCH}"
+			fi
 
-		for P in linux-patches/*.patch; do
-			run_cmd patch -p1 -d linux < $P
-		done
-	}
+			run_cmd git clone --single-branch -b ${BRANCH} ${KERNEL_GIT_URL} ${V}
+		}
 
+		VER="-snp-${V}"
 
-	MAKE="make -C linux -j $(getconf _NPROCESSORS_ONLN) LOCALVERSION="
-
-	for V in snp; do
-		VER="-sev-es-$V"
+		MAKE="make -C ${V} -j $(getconf _NPROCESSORS_ONLN) LOCALVERSION="
 
 		run_cmd $MAKE distclean
 
-		pushd linux >/dev/null
+		pushd ${V} >/dev/null
 			run_cmd "cp /boot/config-$(uname -r) .config"
 			run_cmd ./scripts/config --set-str LOCALVERSION "$VER"
 			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
 			run_cmd ./scripts/config --disable CONFIG_DEBUG_INFO
+			run_cmd ./scripts/config --enable CONFIG_AMD_MEM_ENCRYPT
+			run_cmd ./scripts/config --enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+			run_cmd ./scripts/config --enable CONFIG_KVM_AMD_SEV
+			run_cmd ./scripts/config --module CRYPTO_DEV_CCP_DD
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
@@ -50,10 +53,11 @@ build_kernel()
 			run_cmd $MAKE bindeb-pkg
 		else
 			run_cmd $MAKE "RPMOPTS='--define \"_rpmdir .\"'" binrpm-pkg
-
-			run_cmd mv linux/x86_64/*.rpm .
+			run_cmd mv ${1}/x86_64/*.rpm .
 		fi
 	done
+
+	popd
 }
 
 build_install_ovmf()
