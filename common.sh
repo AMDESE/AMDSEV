@@ -18,7 +18,7 @@ build_kernel()
 
 	for V in guest host; do
 		[ -d ${V} ] || {
-			if [ "${1}" = "guest" ]; then
+			if [ "${V}" = "guest" ]; then
 				BRANCH="${KERNEL_GUEST_BRANCH}"
 			else
 				BRANCH="${KERNEL_HOST_BRANCH}"
