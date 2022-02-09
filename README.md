@@ -30,8 +30,9 @@
   * [ How do I know if SEV is enabled in the guest](#faq-2)
   * [ Can I use virt-manager to launch SEV guest](#faq-3)
   * [ How to increase SWIOTLB limit](#faq-4)
-  * [ virtio-blk fails with out-of-dma-buffer error](#faq-5) 
-  * [ SEV-INIT fails with error 0x13](#faq-6)
+  * [ SWIOTLB allocation failure causing kernel panic](#faq-5)
+  * [ virtio-blk fails with out-of-dma-buffer error](#faq-6)
+  * [ SEV-INIT fails with error 0x13](#faq-7)
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
@@ -539,11 +540,24 @@ GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
 And regenerate the grub.cfg.
 
 <a name="faq-5"></a>
+ * <b>SWIOTLB allocation failure causing kernel panic </b>
+
+ SWIOTLB size, when not specifically specified, is automatically calculated based on the amount of guest memory, up to 1GB maximum. However, the guest may not have enough contiguous memory below 4GB to satisify the SWIOTLB allocation requirement, in which case the kernel will panic:
+
+ <pre>
+ [    0.004318] software IO TLB: SWIOTLB bounce buffer size adjusted to 965MB
+ ...
+ [    1.015953] Kernel panic - not syncing: Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer
+ </pre>
+
+ In this situation, please specify the SWIOTLB size, as shown in [ How to increase SWIOTLB limit](#faq-4), to a value that allows the guest to boot.
+
+<a name="faq-6"></a>
  * <b>virtio-blk device runs out-of-dma-buffer error </b>
  
  To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
  
- <a name="faq-6"></a>
+ <a name="faq-7"></a>
  * <b>SEV_INIT fails with error 0x13 </b>
  
  The error 0x13 is a defined as HWERROR_PLATFORM in the SEV specification. The error indicates that memory encryption support is not enabled in the host BIOS. Look for  the SMEE setting in your BIOS menu and explicitly enable it. You can verify that SMEE is enabled on your machine by running the below command
