@@ -81,14 +81,14 @@ AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 
 ## Upgrade SEV firmware
 
-The SEV-SNP support requires firmware version >= 1.40:40. The latest SEV-SNP firmware is available on developer.amd.com/sev and on linux-firmware project.
+The SEV-SNP support requires firmware version >= 1.50:1. The latest SEV-SNP firmware is available on developer.amd.com/sev and on linux-firmware project.
 Follow the below step to upgrade to latest firmware
 
 ```
-# wget https://developer.amd.com/wp-content/resources/amd_sev_fam19h_model0xh_1.2A.2A.zip
-# unzip amd_sev_fam19h_model0xh_1.2A.2A.zip
+# wget https://developer.amd.com/wp-content/resources/amd_sev_fam19h_model0xh_1.33.01.zip
+# unzip amd_sev_fam19h_model0xh_1.33.01.zip
 # sudo mkdir -p /lib/firmware/amd
-# sudo cp amd_sev_fam19h_model0xh_1.2A.2A.sbin /lib/firmware/amd/amd_sev_fam19h_model0xh.sbin
+# sudo cp amd_sev_fam19h_model0xh_1.33.01.sbin /lib/firmware/amd/amd_sev_fam19h_model0xh.sbin
 ```
 Then either reboot the host, or reload the ccp driver to complete the firmware upgrade process:
 
