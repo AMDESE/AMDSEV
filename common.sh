@@ -18,6 +18,18 @@ build_kernel()
 	mkdir -p linux
 	pushd linux >/dev/null
 
+	if [ ! -d guest ]; then
+		run_cmd git clone ${KERNEL_GIT_URL} guest
+		pushd guest >/dev/null
+		run_cmd git remote add current ${KERNEL_GIT_URL}
+		popd
+	fi
+
+	if [ ! -d host ]; then
+		# use a copy of guest repo as the host repo
+		run_cmd cp -r guest host
+	fi
+
 	for V in guest host; do
 		# Check if only a "guest" or "host" or kernel build is requested
 		if [ "$kernel_type" != "" ]; then
@@ -26,15 +38,15 @@ build_kernel()
 			fi
 		fi
 
-		[ -d ${V} ] || {
-			if [ "${V}" = "guest" ]; then
-				BRANCH="${KERNEL_GUEST_BRANCH}"
-			else
-				BRANCH="${KERNEL_HOST_BRANCH}"
-			fi
+		if [ "${V}" = "guest" ]; then
+			BRANCH="${KERNEL_GUEST_BRANCH}"
+		else
+			BRANCH="${KERNEL_HOST_BRANCH}"
+		fi
 
-			run_cmd git clone --single-branch -b ${BRANCH} ${KERNEL_GIT_URL} ${V}
-		}
+		# Nuke any previously built packages so they don't end up in new tarballs
+		# when ./build.sh --package is specified
+		rm -f linux-*-snp-${V}*
 
 		VER="-snp-${V}"
 
@@ -43,7 +55,13 @@ build_kernel()
 		run_cmd $MAKE distclean
 
 		pushd ${V} >/dev/null
-			COMMIT=$(git log --format="%h" HEAD~1..HEAD)
+			# If ${KERNEL_GIT_URL} is ever changed, 'current' remote will be out
+			# of date, so always update the remote URL first
+			run_cmd git remote set-url current ${KERNEL_GIT_URL}
+			run_cmd git fetch current
+			run_cmd git checkout current/${BRANCH}
+			COMMIT=$(git log --format="%h" -1 HEAD)
+
 			run_cmd "cp /boot/config-$(uname -r) .config"
 			run_cmd ./scripts/config --set-str LOCALVERSION "$VER-$COMMIT"
 			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
