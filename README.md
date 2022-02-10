@@ -44,7 +44,7 @@ Run the following commands to verify that SNP is enabled in the host.
 # dmesg | grep -i -e rmp -e sev
 SEV-SNP: RMP table physical address 0x0000000035600000 - 0x0000000075bfffff
 ccp 0000:23:00.1: sev enabled
-ccp 0000:23:00.1: SEV-SNP API:1.40 build:40
+ccp 0000:23:00.1: SEV-SNP API:1.51 build:1
 SEV supported: 410 ASIDs
 SEV-ES and SEV-SNP supported: 99 ASIDs
 # cat /sys/module/kvm_amd/parameters/sev
