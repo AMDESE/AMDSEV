@@ -43,8 +43,9 @@ build_kernel()
 		run_cmd $MAKE distclean
 
 		pushd ${V} >/dev/null
+			COMMIT=$(git log --format="%h" HEAD~1..HEAD)
 			run_cmd "cp /boot/config-$(uname -r) .config"
-			run_cmd ./scripts/config --set-str LOCALVERSION "$VER"
+			run_cmd ./scripts/config --set-str LOCALVERSION "$VER-$COMMIT"
 			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
 			run_cmd ./scripts/config --disable CONFIG_DEBUG_INFO
 			run_cmd ./scripts/config --enable CONFIG_AMD_MEM_ENCRYPT
