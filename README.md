@@ -8,10 +8,9 @@ The following command builds the host and guest Linux kernel, qemu and ovmf bios
 # git clone https://github.com/AMDESE/AMDSEV.git
 # git checkout sev-snp-devel
 # ./build.sh --package
-# sudo dpkg -ivh linux-image*.deb
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
-On succesful build, the binaries will be available in snp-release-<DATE>.
+On succesful build, the binaries will be available in `snp-release-<DATE>`.
 
 ## Prepare Host
 
@@ -22,9 +21,9 @@ Verify that the following BIOS settings are enabled. The setting may vary based 
                 SEV-ES ASID space Limit Control -> Manual
                 SEV-ES ASID space limit -> 100
                 SNP Memory Coverage -> Enabled 
-                SMEE → Enabled
-          → NBIO common →
-                SEV-SNP → Enabled
+                SMEE -> Enabled
+      -> NBIO common ->
+                SEV-SNP -> Enabled
 ```
   
 Run the following command to install the Linux kernel on the host machine.
@@ -36,7 +35,7 @@ Run the following command to install the Linux kernel on the host machine.
 
 Reboot the machine and choose SNP Host kernel from the grub menu.
 
-Run the following command to verify that SNP is enabled in the host.
+Run the following commands to verify that SNP is enabled in the host.
 
 ````
 # uname -r
@@ -57,11 +56,11 @@ Y
 
 ````
   
-*NOTE: If you SEV-SNP firmware is olader than 1.40 then see the "Upgrade SEV firmware" section to upgrade the firmware. *
+*NOTE: If your SEV-SNP firmware is older than 1.51, see the "Upgrade SEV firmware" section to upgrade the firmware. *
   
 ## Prepare Guest
 
-Boot up the Ubuntu 20.04 guest and install the kernel package built in the previous step. The guest kernel package is available in 'snp-release-<DATE>/linux/guest' directory.
+Boot up a guest (tested with Ubuntu 18.04 and 20.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory.
 
 ## Launch SNP Guest
 
@@ -89,9 +88,16 @@ Follow the below step to upgrade to latest firmware
 # wget https://developer.amd.com/wp-content/resources/amd_sev_fam19h_model0xh_1.2A.2A.zip
 # unzip amd_sev_fam19h_model0xh_1.2A.2A.zip
 # sudo mkdir -p /lib/firmware/amd
-# sudo cp amd_sev_fam19h_model0xh_1.2A.2A.sbin /lib/firmware/amd/amd as amd_sev_fam19h_model0xh.bin
+# sudo cp amd_sev_fam19h_model0xh_1.2A.2A.sbin /lib/firmware/amd/amd_sev_fam19h_model0xh.sbin
 ```
-Either reboot the host or reload the ccp driver to complete the firmware upgrade process.
+Then either reboot the host, or reload the ccp driver to complete the firmware upgrade process:
+
+```
+sudo rmmod kvm_amd
+sudo rmmod ccp
+sudo modprobe ccp
+sudo modprobe kvm_amd
+```
 
 
 ## Reference
