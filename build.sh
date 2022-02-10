@@ -9,12 +9,12 @@ function usage()
 {
 	echo "Usage: $0 [OPTIONS] [COMPONENT]"
 	echo "  where COMPONENT is an individual component to build:"
-	echo "    qemu, ovmf, kernel"
+	echo "    qemu, ovmf, kernel [host|guest]"
+	echo "    (default is to build all components)"
 	echo "  where OPTIONS are:"
-	echo "  --install PATH                Installation path (default $INSTALL_DIR)"
-	echo "  --package [qemu|ovmf|[kernel [host|guest]]"
-	echo "                                Build packages (default is all of them)"
-	echo "  -h|--help                     Usage information"
+	echo "  --install PATH          Installation path (default $INSTALL_DIR)"
+	echo "  --package               Create a tarball containing built components"
+	echo "  -h|--help               Usage information"
 
 	exit 1
 }
