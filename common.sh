@@ -13,10 +13,19 @@ run_cmd()
 build_kernel()
 {
 	set -x
+	kernel_type=$1
+	shift
 	mkdir -p linux
 	pushd linux >/dev/null
 
 	for V in guest host; do
+		# Check if only a "guest" or "host" or kernel build is requested
+		if [ "$kernel_type" != "" ]; then
+			if [ "$kernel_type" != "$V" ]; then
+				continue
+			fi
+		fi
+
 		[ -d ${V} ] || {
 			if [ "${V}" = "guest" ]; then
 				BRANCH="${KERNEL_GUEST_BRANCH}"

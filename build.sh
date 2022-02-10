@@ -11,8 +11,10 @@ function usage()
 	echo "  where COMPONENT is an individual component to build:"
 	echo "    qemu, ovmf, kernel"
 	echo "  where OPTIONS are:"
-	echo "  --install PATH   Installation path (default $INSTALL_DIR)"
-	echo "  -h|--help        Usage information"
+	echo "  --install PATH                Installation path (default $INSTALL_DIR)"
+	echo "  --package [qemu|ovmf|[kernel [host|guest]]"
+	echo "                                Build packages (default is all of them)"
+	echo "  -h|--help                     Usage information"
 
 	exit 1
 }
@@ -54,7 +56,7 @@ INSTALL_DIR=$(readlink -e $INSTALL_DIR)
 if [ -z "$1" ]; then
 	build_install_qemu "$INSTALL_DIR"
 	build_install_ovmf "$INSTALL_DIR/share/qemu"
-	build_kernel
+	build_kernel $2
 else
 	case "$1" in
 	qemu)
@@ -64,7 +66,8 @@ else
 		build_install_ovmf "$INSTALL_DIR/share/qemu"
 		;;
 	kernel)
-		build_kernel
+		# additional argument of "host" or "guest" can be added to limit build to that type
+		build_kernel $2
 		;;
 	esac
 fi
