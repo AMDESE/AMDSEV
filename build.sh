@@ -84,7 +84,8 @@ if [[ "$BUILD_PACKAGE" = "1" ]]; then
 		cp linux/linux-*-guest-*.deb $OUTPUT_DIR/linux/guest -v
 		cp linux/linux-*-host-*.deb $OUTPUT_DIR/linux/host -v
 	else
-		cp kernel-*.rpm $OUTPUT_DIR/linux -v
+                cp linux/kernel-*_guest_*.rpm $OUTPUT_DIR/linux/guest -v
+                cp linux/kernel-*_host_*.rpm $OUTPUT_DIR/linux/host -v
 	fi
 
 	cp launch-qemu.sh ${OUTPUT_DIR} -v

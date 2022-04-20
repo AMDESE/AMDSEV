@@ -6,13 +6,13 @@
 if [ "$ID_LIKE" = "debian" ]; then
 	apt-get -y install qemu ovmf
 else
-	dnf install qemu edk2-ovmf
+	dnf install @virt edk2-ovmf -y
 fi
 
 if [ "$ID_LIKE" = "debian" ]; then
 	dpkg -i linux/host/linux-image-*.deb
 else
-	rpm -ivh linux/kernel-*.rpm
+	dnf install -y linux/host/kernel-*.rpm
 fi
 
 cp kvm.conf /etc/modprobe.d/

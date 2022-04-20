@@ -81,7 +81,7 @@ build_kernel()
 			run_cmd $MAKE bindeb-pkg
 		else
 			run_cmd $MAKE "RPMOPTS='--define \"_rpmdir .\"'" binrpm-pkg
-			run_cmd mv ${1}/x86_64/*.rpm .
+			run_cmd mv ${V}/x86_64/*.rpm .
 		fi
 	done
 
