@@ -80,7 +80,7 @@ if [[ "$BUILD_PACKAGE" = "1" ]]; then
 	mkdir -p $OUTPUT_DIR/usr
 	cp -dpR $INSTALL_DIR $OUTPUT_DIR/usr/
 
-	if [ "$ID_LIKE" = "debian" ]; then
+	if [ "$ID" = "debian" ] || [ "$ID_LIKE" = "debian" ]; then
 		cp linux/linux-*-guest-*.deb $OUTPUT_DIR/linux/guest -v
 		cp linux/linux-*-host-*.deb $OUTPUT_DIR/linux/host -v
 	else
