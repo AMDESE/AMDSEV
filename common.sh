@@ -65,11 +65,14 @@ build_kernel()
 			run_cmd "cp /boot/config-$(uname -r) .config"
 			run_cmd ./scripts/config --set-str LOCALVERSION "$VER-$COMMIT"
 			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
-			run_cmd ./scripts/config --disable CONFIG_DEBUG_INFO
-			run_cmd ./scripts/config --enable CONFIG_AMD_MEM_ENCRYPT
-			run_cmd ./scripts/config --enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
-			run_cmd ./scripts/config --enable CONFIG_KVM_AMD_SEV
-			run_cmd ./scripts/config --module CRYPTO_DEV_CCP_DD
+			run_cmd ./scripts/config --enable  DEBUG_INFO
+			run_cmd ./scripts/config --enable  DEBUG_INFO_REDUCED
+			run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT
+			run_cmd ./scripts/config --disable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+			run_cmd ./scripts/config --enable  KVM_AMD_SEV
+			run_cmd ./scripts/config --module  CRYPTO_DEV_CCP_DD
+			run_cmd ./scripts/config --disable SYSTEM_TRUSTED_KEYS
+			run_cmd ./scripts/config --disable SYSTEM_REVOCATION_KEYS
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
