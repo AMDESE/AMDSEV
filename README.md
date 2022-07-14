@@ -39,7 +39,7 @@ Run the following commands to verify that SNP is enabled in the host.
 
 ````
 # uname -r
-5.14.0-rc2-snp-host
+5.19.0-rc6-sev-es-snp+
 
 # dmesg | grep -i -e rmp -e sev
 SEV-SNP: RMP table physical address 0x0000000035600000 - 0x0000000075bfffff
