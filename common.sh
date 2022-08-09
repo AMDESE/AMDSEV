@@ -73,6 +73,8 @@ build_kernel()
 			run_cmd ./scripts/config --module  CRYPTO_DEV_CCP_DD
 			run_cmd ./scripts/config --disable SYSTEM_TRUSTED_KEYS
 			run_cmd ./scripts/config --disable SYSTEM_REVOCATION_KEYS
+			run_cmd ./scripts/config --module  SEV_GUEST
+			run_cmd ./scripts/config --module  IOMMU_DEFAULT_PASSTHROUGH
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
@@ -84,7 +86,7 @@ build_kernel()
 			run_cmd $MAKE bindeb-pkg
 		else
 			run_cmd $MAKE "RPMOPTS='--define \"_rpmdir .\"'" binrpm-pkg
-			run_cmd mv ${1}/x86_64/*.rpm .
+			run_cmd mv ${V}/x86_64/*.rpm .
 		fi
 	done
 
