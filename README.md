@@ -81,7 +81,7 @@ AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 
 ## Upgrade SEV firmware
 
-The SEV-SNP support requires firmware version >= 1.51:1. The latest SEV-SNP firmware is available on https://developer.amd.com/sev and via the linux-firmware project.
+The SEV-SNP support requires firmware version >= 1.51:1 (or 1.33 in hexadecimal, which is what developer.amd.com uses when uploading firmware versions). The latest SEV-SNP firmware is available on https://developer.amd.com/sev and via the linux-firmware project.
 
 The below steps document the firmware upgrade process for the latest SEV-SNP firmware available on https://developer.amd.com/sev at the time this was written. A similar procedure can be used for newer firmwares as well:
 
