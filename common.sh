@@ -74,7 +74,7 @@ build_kernel()
 			run_cmd ./scripts/config --disable SYSTEM_TRUSTED_KEYS
 			run_cmd ./scripts/config --disable SYSTEM_REVOCATION_KEYS
 			run_cmd ./scripts/config --module  SEV_GUEST
-			run_cmd ./scripts/config --module  IOMMU_DEFAULT_PASSTHROUGH
+			run_cmd ./scripts/config --disable IOMMU_DEFAULT_PASSTHROUGH
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
