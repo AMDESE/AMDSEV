@@ -188,6 +188,7 @@ add_opts "-no-reboot"
 # "normal" qemu drive on the host side, and it is exposed to the guest as a
 # persistent flash device.
 add_opts "-drive if=pflash,format=raw,unit=0,file=${UEFI_CODE},readonly"
+add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_VARS}"
 
 # add network support and fwd port 22 to 8000
 # echo "guest port 22 is fwd to host 8000..."
