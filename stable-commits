@@ -1,0 +1,19 @@
+#
+# Repos/Branches for SEV-SNP support
+#
+
+# hypervisor commit
+KERNEL_GIT_URL="https://github.com/AMDESE/linux.git"
+KERNEL_HOST_BRANCH="sev-snp-part2-v6"
+KERNEL_GUEST_BRANCH="sev-snp-v10"
+
+# qemu commit
+QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
+QEMU_BRANCH="snp-v3"
+
+# guest bios
+OVMF_GIT_URL="https://github.com/tianocore/edk2.git"
+# This will build using latest upstream code. The latest upstream commit
+# documented to work properly is b360b0b589. Please report any failures
+# with upstream UEFI/OVMF builds so they can be addressed.
+OVMF_BRANCH="master"
