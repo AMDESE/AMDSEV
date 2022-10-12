@@ -75,6 +75,10 @@ build_kernel()
 			run_cmd ./scripts/config --disable SYSTEM_REVOCATION_KEYS
 			run_cmd ./scripts/config --module  SEV_GUEST
 			run_cmd ./scripts/config --disable IOMMU_DEFAULT_PASSTHROUGH
+			run_cmd ./scripts/config --disable PREEMPT_COUNT
+			run_cmd ./scripts/config --disable PREEMPTION
+			run_cmd ./scripts/config --disable PREEMPT_DYNAMIC
+			run_cmd ./scripts/config --disable DEBUG_PREEMPT
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
