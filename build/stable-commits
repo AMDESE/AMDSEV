@@ -4,12 +4,12 @@
 
 # hypervisor commit
 KERNEL_GIT_URL="https://github.com/torvalds/linux.git"
-KERNEL_GIT_TAG="v5.11"
+KERNEL_GIT_TAG="master"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/qemu/qemu.git"
-QEMU_GIT_TAG="v6.0.0"
+QEMU_GIT_TAG="master"
 
 # guest bios
 OVMF_GIT_URL="https://github.com/tianocore/edk2.git"
-OVMF_GIT_TAG="edk2-stable202102"
+OVMF_GIT_TAG="master"
