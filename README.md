@@ -60,6 +60,14 @@ Y
   
 ## Prepare Guest
 
+Note: SNP requires OVMF be used as the guest BIOS in order to boot. This implies that the guest must have been initially installed using OVMF so that a UEFI partition is present.
+
+If you do not already have an installed guest, you can use the launch-qemu.sh script to create it:
+
+````
+# ./launch-qemu.sh -hda <your_qcow2_file> -cdrom <your_distro_installation_iso_file>
+````
+
 Boot up a guest (tested with Ubuntu 18.04 and 20.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory.
 
 ## Launch SNP Guest
