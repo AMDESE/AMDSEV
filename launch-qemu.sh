@@ -30,6 +30,7 @@ usage() {
 	echo " -mem MEM           guest memory size in MB (default $MEM)"
 	echo " -smp NCPUS         number of virtual cpus (default $SMP)"
 	echo " -allow-debug       dump vmcb on exit and enable the trace"
+	echo " -cdrom PATH        CDROM image"
 	exit 1
 }
 
@@ -109,6 +110,9 @@ while [ -n "$1" ]; do
 		-initrd)	INITRD_FILE=$2
 				shift
 				;;
+		-cdrom)		CDROM_FILE="$2"
+				shift
+				;;
 		*) 		usage
 				;;
 	esac
@@ -132,6 +136,17 @@ QEMU_EXE="$(readlink -e $TMP)"
 	}
 
 	GUEST_NAME="$(basename $TMP | sed -re 's|\.[^\.]+$||')"
+}
+
+[ -n "$CDROM_FILE" ] && {
+	TMP="$CDROM_FILE"
+	CDROM_FILE="$(readlink -e $TMP)"
+	[ -z "$CDROM_FILE" ] && {
+		echo "Can't locate CD-Rom file [$TMP]"
+		usage
+	}
+
+	[ -z "$GUEST_NAME" ] && GUEST_NAME="$(basename $TMP | sed -re 's|\.[^\.]+$||')"
 }
 
 TMP="$UEFI_PATH/OVMF_CODE.fd"
@@ -189,6 +204,9 @@ add_opts "-no-reboot"
 # persistent flash device.
 add_opts "-drive if=pflash,format=raw,unit=0,file=${UEFI_CODE},readonly"
 add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_VARS}"
+
+# add CDROM if specified
+[ -n "${CDROM_FILE}" ] && add_opts "-drive file=${CDROM_FILE},media=cdrom -boot d"
 
 # add network support and fwd port 22 to 8000
 # echo "guest port 22 is fwd to host 8000..."
