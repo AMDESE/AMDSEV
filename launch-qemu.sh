@@ -30,6 +30,9 @@ usage() {
 	echo " -mem MEM           guest memory size in MB (default $MEM)"
 	echo " -smp NCPUS         number of virtual cpus (default $SMP)"
 	echo " -allow-debug       dump vmcb on exit and enable the trace"
+	echo " -kernel PATH       kernel to use"
+	echo " -initrd PATH       initrd to use"
+	echo " -append ARGS       kernel command line arguments to use"
 	echo " -cdrom PATH        CDROM image"
 	exit 1
 }
@@ -108,6 +111,9 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-initrd)	INITRD_FILE=$2
+				shift
+				;;
+		-append)	APPEND=$2
 				shift
 				;;
 		-cdrom)		CDROM_FILE="$2"
@@ -255,8 +261,12 @@ fi
 # if -kernel arg is specified then use the kernel provided in command line for boot
 if [ "${KERNEL_FILE}" != "" ]; then
 	add_opts "-kernel $KERNEL_FILE"
-	add_opts "-append \"console=ttyS0 earlyprintk=serial root=/dev/sda2\""
-	[ ! -z ${INITRD_FILE} ] && add_opts "-initrd ${INITRD_FILE}"
+	if [ -n "$APPEND" ]; then
+		add_opts "-append \"$APPEND\""
+	else
+		add_opts "-append \"console=ttyS0 earlyprintk=serial root=/dev/sda2\""
+	fi
+	[ -n "${INITRD_FILE}" ] && add_opts "-initrd ${INITRD_FILE}"
 fi
 
 # if console is serial then disable graphical interface
