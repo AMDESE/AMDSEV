@@ -12,8 +12,10 @@ QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
 QEMU_BRANCH="snp-v3"
 
 # guest bios
+#   This will use a stable tag that is known to work with the specified
+#   level of hypervisor. An AP creation fix added after this tag exposed
+#   a hypervisor bug and breaks AP booting with the specified level of the
+#   hypervisor. Please report any failures with this level of UEFI/OVMF,
+#   so they can be addressed.
 OVMF_GIT_URL="https://github.com/tianocore/edk2.git"
-# This will build using latest upstream code. The latest upstream commit
-# documented to work properly is b360b0b589. Please report any failures
-# with upstream UEFI/OVMF builds so they can be addressed.
-OVMF_BRANCH="master"
+OVMF_BRANCH="edk2-stable202302"
