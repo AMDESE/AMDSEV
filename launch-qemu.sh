@@ -9,6 +9,7 @@ SMP="4"
 VNC=""
 CONSOLE="serial"
 USE_VIRTIO="1"
+DISCARD="none"
 USE_DEFAULT_NETWORK="0"
 
 SEV="0"
@@ -26,6 +27,7 @@ usage() {
 	echo " -sev               launch SEV guest"
 	echo " -sev-es            launch SEV guest"
 	echo " -sev-snp           launch SNP guest"
+	echo " -enable-discard    for SNP, discard memory after conversion. (worse boot-time performance, but less memory usage)"
 	echo " -bios              the bios to use (default $UEFI_PATH)"
 	echo " -hda PATH          hard disk file (default $HDA)"
 	echo " -mem MEM           guest memory size in MB (default $MEM)"
@@ -90,6 +92,9 @@ while [ -n "$1" ]; do
 		-sev-snp)	SEV_SNP="1"
 				SEV_ES="1"
 				SEV="1"
+				;;
+		-enable-discard)
+				DISCARD="both"
 				;;
 		-sev-es)	SEV_ES="1"
 				SEV="1"
@@ -262,7 +267,9 @@ if [ ${SEV} = "1" ]; then
 	fi
 
 	if [ "${SEV_SNP}" = 1 ]; then
-		add_opts "-object sev-snp-guest,id=sev0,cbitpos=${CBITPOS},reduced-phys-bits=1"
+		add_opts "-object memory-backend-memfd-private,id=ram1,size=${MEM}M,share=true"
+		add_opts "-object sev-snp-guest,id=sev0,cbitpos=${CBITPOS},reduced-phys-bits=1,discard=${DISCARD}"
+		add_opts "-machine memory-backend=ram1,kvm-type=protected"
 	else
 		add_opts "-object sev-guest,id=sev0${SEV_POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1"
 	fi
