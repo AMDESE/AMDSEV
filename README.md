@@ -1,6 +1,15 @@
-PLEASE NOTE: the development trees used to build these packages are no longer actively developed. To build using the latest SNP development trees please use the [snp-latest](https://github.com/amdese/amdsev/tree/snp-latest) branch of this repo.
-
 Follow the below steps to build and run the SEV-SNP guest. The step below are tested on Ubuntu 20.04 host and guest.
+
+## Upgrading from 5.19-based SNP hypervisor/host kernels
+
+This repo will build host/guest kernel, QEMU, and OVMF packages that are known to work against the latest development for tree SNP host/hypervisor support. If you are building packages to use in conjunction with an older 5.19-based SNP host/hypervisor kernel, then please use the [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) branch of this repo instead, which will ensure that compatible QEMU/OVMF trees are used instead. Please consider switching to the latest development trees used by this branch however, as [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) is no longer being actively developed.
+
+Newer SNP host/kernel support now relies on new kernel infrastructure for managing private guest memory called restrictedmem[1] (a.k.a. Unmapped Private Memory). This reliance on restrictedmem brings about some new requirements/limitations in the current tree that users should be aware:
+* To enable THP for SNP guest, the following must be done on the host:
+ * `echo always >/sys/kernel/mm/transparent_hugepages/shmem_enabled`
+* Assigning NUMA affinities for private guest memory is not supported.
+* Guest private memory is now accounted as shared memory rather than used memory, so please take this into account when monitoring memory usage.
+* The QEMU command-line options to launch an SEV-SNP guest have changed. Setting these options will be handled automatically when using the launch-qemu.sh script mentioned in the instructions below. If launching QEMU directly, please still reference the script to determine the correct QEMU options to use.
 
 ## Build
 
@@ -8,7 +17,7 @@ The following command builds the host and guest Linux kernel, qemu and ovmf bios
 
 ````
 # git clone https://github.com/AMDESE/AMDSEV.git
-# git checkout sev-snp-devel
+# git checkout snp-latest
 # ./build.sh --package
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
@@ -114,3 +123,5 @@ sudo modprobe kvm_amd
 ## Reference
 
 https://developer.amd.com/sev/
+
+[1] restrictedmem (a.k.a. Unmapped Private Memory): https://lore.kernel.org/lkml/20221202061347.1070246-1-chao.p.peng@linux.intel.com/
