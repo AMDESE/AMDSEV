@@ -9,6 +9,7 @@ SMP="4"
 VNC=""
 CONSOLE="serial"
 USE_VIRTIO="1"
+USE_DEFAULT_NETWORK="0"
 
 SEV="0"
 SEV_ES="0"
@@ -34,6 +35,8 @@ usage() {
 	echo " -initrd PATH       initrd to use"
 	echo " -append ARGS       kernel command line arguments to use"
 	echo " -cdrom PATH        CDROM image"
+	echo " -default-network   enable default usermode networking"
+	echo "                    (Requires that QEMU is built on a host that supports libslirp-dev 4.7 or newer)"
 	exit 1
 }
 
@@ -118,6 +121,9 @@ while [ -n "$1" ]; do
 				;;
 		-cdrom)		CDROM_FILE="$2"
 				shift
+				;;
+		-default-network)
+				DEFAULT_NETWORK="1"
 				;;
 		*) 		usage
 				;;
@@ -214,11 +220,15 @@ add_opts "-drive if=pflash,format=raw,unit=1,file=${UEFI_VARS}"
 # add CDROM if specified
 [ -n "${CDROM_FILE}" ] && add_opts "-drive file=${CDROM_FILE},media=cdrom -boot d"
 
-# add network support and fwd port 22 to 8000
-# echo "guest port 22 is fwd to host 8000..."
-#add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22 -device e1000,netdev=vmnic,romfile="
-add_opts "-netdev user,id=vmnic"
-add_opts " -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile="
+# NOTE: as of QEMU 7.2.0, libslirp-dev 4.7+ is needed, but fairly recent
+# distros like Ubuntu 20.04 still only provide 4.1, so only enable
+# usermode network if specifically requested.
+if [ "$USE_DEFAULT_NETWORK" = "1" ]; then
+    #echo "guest port 22 is fwd to host 8000..."
+    #add_opts "-netdev user,id=vmnic,hostfwd=tcp::8000-:22 -device e1000,netdev=vmnic,romfile="
+    add_opts "-netdev user,id=vmnic"
+    add_opts " -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile="
+fi
 
 # If harddisk file is specified then add the HDD drive
 if [ -n "${HDA}" ]; then
