@@ -1,3 +1,5 @@
+PLEASE NOTE: the development trees used to build these packages are no longer actively developed. To build using the latest SNP development trees please use the [snp-latest](https://github.com/amdese/amdsev/tree/snp-latest) branch of this repo.
+
 Follow the below steps to build and run the SEV-SNP guest. The step below are tested on Ubuntu 20.04 host and guest.
 
 ## Build
