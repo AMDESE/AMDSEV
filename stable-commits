@@ -19,5 +19,5 @@ QEMU_BRANCH="snp-latest"
 #   please use the 'sev-snp-legacy' branch of this AMDSEV repo instead,
 #   which will build the latest known-working QEMU/OVMF trees for older
 #   SNP hypervisor/host kernels.
-OVMF_GIT_URL="https://github.com/tianocore/edk2.git"
+OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
 OVMF_BRANCH="snp-latest"
