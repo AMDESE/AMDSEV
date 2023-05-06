@@ -114,7 +114,7 @@ build_install_ovmf()
 	# A race condition exists in edk2 build - set threads to 1 for now
 	# Previous value: -n $(getconf _NPROCESSORS_ONLN)
 	# Only seen the error on Bergamo systems
-	BUILD_CMD="nice build -q --cmd-len=64436 -DDEBUG_ON_SERIAL_PORT=TRUE -n 1 ${GCCVERS:+-t $GCCVERS} -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
+	BUILD_CMD="nice build -q --cmd-len=64436 -DDEBUG_ON_SERIAL_PORT=TRUE -n 1 ${GCCVERS:+-t $GCCVERS} -a X64 -p OvmfPkg/AmdSev/AmdSevX64.dsc"
 
 	[ -d ovmf ] || {
 		run_cmd git clone --single-branch -b ${OVMF_BRANCH} ${OVMF_GIT_URL} ovmf
@@ -127,11 +127,11 @@ build_install_ovmf()
 	pushd ovmf >/dev/null
 		run_cmd make -C BaseTools
 		. ./edksetup.sh --reconfig
+		touch OvmfPkg/AmdSev/Grub/grub.efi
 		run_cmd $BUILD_CMD
 
 		mkdir -p $DEST
-		run_cmd cp -f Build/OvmfX64/DEBUG_$GCCVERS/FV/OVMF_CODE.fd $DEST
-		run_cmd cp -f Build/OvmfX64/DEBUG_$GCCVERS/FV/OVMF_VARS.fd $DEST
+		run_cmd cp -f Build/AmdSev/DEBUG_$GCCVERS/FV/OVMF.fd $DEST
 	popd >/dev/null
 }
 
