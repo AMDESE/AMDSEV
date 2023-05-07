@@ -79,6 +79,7 @@ build_kernel()
 			run_cmd ./scripts/config --disable PREEMPTION
 			run_cmd ./scripts/config --disable PREEMPT_DYNAMIC
 			run_cmd ./scripts/config --disable DEBUG_PREEMPT
+			run_cmd ./scripts/config --enable  CGROUP_MISC
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
