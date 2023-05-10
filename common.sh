@@ -33,9 +33,10 @@ build_kernel()
 			BRANCH="${KERNEL_HOST_BRANCH}"
 			KERNEL_GIT_URL="${KERNEL_HOST_GIT_URL}"
 		fi
+		BRANCH_NO_TAGS=$(echo "${BRANCH}" | sed "s|tags/||g")
 
 		if [ ! -d "${V}" ]; then
-			run_cmd git clone -b "${BRANCH}" --depth 1 "${KERNEL_GIT_URL}" "${V}"
+			run_cmd git clone -b "${BRANCH_NO_TAGS}" --depth 1 "${KERNEL_GIT_URL}" "${V}"
 			run_cmd git -C "${V}" remote add current "${KERNEL_GIT_URL}"
 		fi
 
@@ -54,7 +55,14 @@ build_kernel()
 			# of date, so always update the remote URL first
 			run_cmd git remote set-url current "${KERNEL_GIT_URL}"
 			run_cmd git fetch --depth 1 current "${BRANCH}"
-			run_cmd git checkout "current/${BRANCH}"
+
+			# Handle checkout if tag is specified
+			if [[ "${BRANCH}" =~ "tags/" ]]; then
+				run_cmd git checkout "${BRANCH}"
+			else
+				run_cmd git checkout "current/${BRANCH}"
+			fi
+
 			COMMIT=$(git log --format="%h" -1 HEAD)
 
 			run_cmd "cp /boot/config-$(uname -r) .config"
