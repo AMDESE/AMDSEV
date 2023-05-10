@@ -4,9 +4,9 @@
 
 # hypervisor commit
 KERNEL_HOST_GIT_URL="https://github.com/AMDESE/linux.git"
-KERNEL_HOST_BRANCH="sev-snp-iommu-avic_5.19-rc6_v4"
+KERNEL_HOST_BRANCH="sev-snp-iommu-avic_5.19-rc6_v4-tmp"
 KERNEL_GUEST_GIT_URL="https://github.com/AMDESE/linux.git"
-KERNEL_GUEST_BRANCH="sev-snp-iommu-avic_5.19-rc6_v4"
+KERNEL_GUEST_BRANCH="sev-snp-iommu-avic_5.19-rc6_v4-tmp"
 
 # qemu commit
 QEMU_GIT_URL="https://github.com/confidential-containers-demo/qemu.git"
