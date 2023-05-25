@@ -65,6 +65,7 @@ build_kernel()
 			run_cmd "cp /boot/config-$(uname -r) .config"
 			run_cmd ./scripts/config --set-str LOCALVERSION "$VER-$COMMIT"
 			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
+			run_cmd ./scripts/config --enable  EXPERT
 			run_cmd ./scripts/config --enable  DEBUG_INFO
 			run_cmd ./scripts/config --enable  DEBUG_INFO_REDUCED
 			run_cmd ./scripts/config --enable  AMD_MEM_ENCRYPT
