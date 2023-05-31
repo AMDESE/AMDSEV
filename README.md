@@ -100,16 +100,17 @@ AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 
 ## Upgrade SEV firmware
 
-The SEV-SNP support requires firmware version >= 1.51:1 (or 1.33 in hexadecimal, which is what developer.amd.com uses when uploading firmware versions). The latest SEV-SNP firmware is available on https://developer.amd.com/sev and via the linux-firmware project.
+The SEV-SNP support requires firmware version >= 1.51:1 (or 1.33 in hexadecimal). The latest SEV-SNP firmware is available on https://developer.amd.com/sev and via the linux-firmware project.
 
-The below steps document the firmware upgrade process for the latest SEV-SNP firmware available on https://developer.amd.com/sev at the time this was written. A similar procedure can be used for newer firmwares as well:
+The steps below document the firmware upgrade process for the latest SEV-SNP firmware available on https://developer.amd.com/sev at the time this was written. Currently, these steps only apply for Milan systems. A similar procedure can be used for newer firmwares as well:
 
 ```
-# wget https://developer.amd.com/wp-content/resources/amd_sev_fam19h_model0xh_1.33.03.zip
-# unzip amd_sev_fam19h_model0xh_1.33.03.zip
+# wget https://download.amd.com/developer/eula/sev/amd_sev_fam19h_model0xh_1.54.01.zip
+# unzip amd_sev_fam19h_model0xh_1.54.01.zip
 # sudo mkdir -p /lib/firmware/amd
-# sudo cp amd_sev_fam19h_model0xh_1.33.03.sbin /lib/firmware/amd/amd_sev_fam19h_model0xh.sbin
+# sudo cp amd_sev_fam19h_model0xh_1.54.01.sbin /lib/firmware/amd/amd_sev_fam19h_model0xh.sbin
 ```
+
 Then either reboot the host, or reload the ccp driver to complete the firmware upgrade process:
 
 ```
@@ -119,6 +120,13 @@ sudo modprobe ccp
 sudo modprobe kvm_amd
 ```
 
+Current Milan SEV/SNP FW requires a PSP BootLoader version of 00.13.00.70 or greater. Milan AGESA PI 1.0.0.9 included a sufficient PSP BootLoader. Attempting to update to current SEV FW with an older BootLoader will fail. If the following error appears after updating the firmware manually, update the system to the latest available BIOS:
+
+```
+$ sudo dmesg | grep -i sev
+[    4.364896] ccp 0000:47:00.1: SEV: failed to INIT error 0x1, rc -5
+```
+For Genoa firmware updates, the system BIOS has to be updated to get the latest sev firmware.
 
 ## Reference
 
