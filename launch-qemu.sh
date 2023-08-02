@@ -11,6 +11,7 @@ CONSOLE="serial"
 USE_VIRTIO="1"
 DISCARD="none"
 USE_DEFAULT_NETWORK="0"
+CPU_MODEL="EPYC-v4"
 
 SEV="0"
 SEV_ES="0"
@@ -32,6 +33,8 @@ usage() {
 	echo " -hda PATH          hard disk file (default $HDA)"
 	echo " -mem MEM           guest memory size in MB (default $MEM)"
 	echo " -smp NCPUS         number of virtual cpus (default $SMP)"
+	echo " -cpu CPU_MODEL     QEMU CPU model/type to use (default $CPU_MODEL)."
+	echo "                    You can also specify additional CPU flags, e.g. -cpu $CPU_MODEL,+avx512f,+avx512dq"
 	echo " -allow-debug       dump vmcb on exit and enable the trace"
 	echo " -kernel PATH       kernel to use"
 	echo " -initrd PATH       initrd to use"
@@ -108,6 +111,9 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-smp)		SMP="$2"
+				shift
+				;;
+		-cpu)		CPU_MODEL="$2"
 				shift
 				;;
 		-bios)          UEFI_PATH="$2"
@@ -205,7 +211,7 @@ rm -rf $QEMU_CMDLINE
 add_opts "$QEMU_EXE"
 
 # Basic virtual machine property
-add_opts "-enable-kvm -cpu EPYC-v4 -machine q35"
+add_opts "-enable-kvm -cpu ${CPU_MODEL} -machine q35"
 
 # add number of VCPUs
 [ -n "${SMP}" ] && add_opts "-smp ${SMP},maxcpus=64"
