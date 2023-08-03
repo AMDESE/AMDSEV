@@ -214,10 +214,10 @@ add_opts "$QEMU_EXE"
 add_opts "-enable-kvm -cpu ${CPU_MODEL} -machine q35"
 
 # add number of VCPUs
-[ -n "${SMP}" ] && add_opts "-smp ${SMP},maxcpus=64"
+[ -n "${SMP}" ] && add_opts "-smp ${SMP},maxcpus=255"
 
 # define guest memory
-add_opts "-m ${MEM}M,slots=5,maxmem=30G"
+add_opts "-m ${MEM}M,slots=5,maxmem=$((${MEM} + 8192))M"
 
 # don't reboot for SEV-ES guest
 add_opts "-no-reboot"
