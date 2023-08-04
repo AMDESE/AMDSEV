@@ -134,7 +134,7 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-default-network)
-				DEFAULT_NETWORK="1"
+				USE_DEFAULT_NETWORK="1"
 				;;
 		*) 		usage
 				;;
