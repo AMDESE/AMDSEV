@@ -92,6 +92,7 @@ build_kernel()
 			run_cmd ./scripts/config --disable DEBUG_PREEMPT
 			run_cmd ./scripts/config --enable  CGROUP_MISC
 			run_cmd ./scripts/config --module  X86_CPUID
+			run_cmd ./scripts/config --disable UBSAN
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
