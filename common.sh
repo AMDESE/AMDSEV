@@ -136,7 +136,7 @@ build_install_ovmf()
 		fi
 		popd >/dev/null
 	else
-		run_cmd git clone --single-branch -b ${OVMF_BRANCH} ${OVMF_GIT_URL} qemu
+		run_cmd git clone --single-branch -b ${OVMF_BRANCH} ${OVMF_GIT_URL} ovmf
 		run_cmd git remote add current ${OVMF_GIT_URL}
 	fi
 
