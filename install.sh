@@ -12,7 +12,7 @@ fi
 if [ "$ID" = "debian" ] || [ "$ID_LIKE" = "debian" ]; then
 	dpkg -i linux/host/linux-image-*.deb
 else
-	rpm -ivh linux/kernel-*.rpm
+	dnf install linux/kernel-*.rpm
 fi
 
 cp kvm.conf /etc/modprobe.d/
