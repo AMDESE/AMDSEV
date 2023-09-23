@@ -79,6 +79,8 @@ if [[ "$BUILD_PACKAGE" = "1" ]]; then
 	mkdir -p $OUTPUT_DIR/linux/host
 	mkdir -p $OUTPUT_DIR/usr
 	cp -dpR $INSTALL_DIR $OUTPUT_DIR/usr/
+	cp source-commit.* $OUTPUT_DIR/
+	cp stable-commits $OUTPUT_DIR/source-config
 
 	if [ "$ID" = "debian" ] || [ "$ID_LIKE" = "debian" ]; then
 		cp linux/linux-*-guest-*.deb $OUTPUT_DIR/linux/guest -v

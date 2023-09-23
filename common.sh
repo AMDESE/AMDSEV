@@ -93,6 +93,8 @@ build_kernel()
 			run_cmd ./scripts/config --enable  CGROUP_MISC
 			run_cmd ./scripts/config --module  X86_CPUID
 			run_cmd ./scripts/config --disable UBSAN
+
+			run_cmd echo $COMMIT >../../source-commit.kernel.$V
 		popd >/dev/null
 
 		yes "" | $MAKE olddefconfig
@@ -153,6 +155,9 @@ build_install_ovmf()
 		mkdir -p $DEST
 		run_cmd cp -f Build/OvmfX64/DEBUG_$GCCVERS/FV/OVMF_CODE.fd $DEST
 		run_cmd cp -f Build/OvmfX64/DEBUG_$GCCVERS/FV/OVMF_VARS.fd $DEST
+
+		COMMIT=$(git log --format="%h" -1 HEAD)
+		run_cmd echo $COMMIT >../source-commit.ovmf
 	popd >/dev/null
 }
 
@@ -184,5 +189,8 @@ build_install_qemu()
 		run_cmd ./configure --target-list=x86_64-softmmu --prefix=$DEST
 		run_cmd $MAKE
 		run_cmd $MAKE install
+
+		COMMIT=$(git log --format="%h" -1 HEAD)
+		run_cmd echo $COMMIT >../source-commit.qemu
 	popd >/dev/null
 }
