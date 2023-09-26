@@ -93,6 +93,7 @@ build_kernel()
 			run_cmd ./scripts/config --enable  CGROUP_MISC
 			run_cmd ./scripts/config --module  X86_CPUID
 			run_cmd ./scripts/config --disable UBSAN
+			run_cmd ./scripts/config --disable MODULE_COMPRESS_ZSTD
 
 			run_cmd echo $COMMIT >../../source-commit.kernel.$V
 		popd >/dev/null
