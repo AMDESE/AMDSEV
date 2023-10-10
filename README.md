@@ -1,8 +1,16 @@
-Follow the below steps to build and run the SEV-SNP guest. The step below are tested on Ubuntu 20.04 host and guest.
+This repo will build host/guest kernel, QEMU, and OVMF packages that are known to work in conjunction with the latest development for trees SNP host/hypervisor support. The repo will utilize the latest published development tree for the [SNP host kernel](https://github.com/amdese/linux/tree/snp-host-latest), which will generally correspond to the latest patchset posted upstream, along with fixes/changes on top resulting from continued development/testing. It will also utilize the latest published development tree for QEMU, which is hosted [here](https://github.com/amdese/qemu/tree/snp-latest).
+
+SNP hypervisor support is still being actively developed/upstreamed. Please report any issues with it or any other components built by these scripts via the issue tracker for this repo [here](https://github.com/AMDESE/AMDSEV/issues).
+
+Follow the below steps to build and run an SEV-SNP guest in conjunction with these components. The step below are tested on Ubuntu 22.04 hosts/guests.
+
+## Upgrading from 6.5-based SNP hypervisor/host kernels
+
+If you were previously using a build based on kernel 6.5-rc2 host kernel, you may notice a drop in boot-time performance switch over to the latest kernel. This is due to [SRSO mitigations](https://www.amd.com/content/dam/amd/en/documents/corporate/cr/speculative-return-stack-overflow-whitepaper.pdf) that were added is later versions of kernel 6.5 and enabled by default. While it is not recommended, you can use the 'spec_rstack_overflow=off' kernel command-line options in both host and guest to disable these mitigations for the purposes of evaluating performance differences vs. previous builds.
 
 ## Upgrading from 5.19-based SNP hypervisor/host kernels
 
-This repo will build host/guest kernel, QEMU, and OVMF packages that are known to work against the latest development for tree SNP host/hypervisor support. If you are building packages to use in conjunction with an older 5.19-based SNP host/hypervisor kernel, then please use the [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) branch of this repo instead, which will ensure that compatible QEMU/OVMF trees are used instead. Please consider switching to the latest development trees used by this branch however, as [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) is no longer being actively developed.
+If you are building packages to use in conjunction with an older 5.19-based SNP host/hypervisor kernel, then please use the [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) branch of this repo instead, which will ensure that compatible QEMU/OVMF trees are used instead. Please consider switching to the latest development trees used by this branch however, as [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) is no longer being actively developed.
 
 Newer SNP host/kernel support now relies on new kernel infrastructure for managing private guest memory called restrictedmem[1] (a.k.a. Unmapped Private Memory). This reliance on restrictedmem brings about some new requirements/limitations in the current tree that users should be aware:
 * Assigning NUMA affinities for private guest memory is not supported.
