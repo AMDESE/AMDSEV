@@ -93,6 +93,35 @@ build_kernel()
 			run_cmd ./scripts/config --enable  CGROUP_MISC
 			run_cmd ./scripts/config --module  X86_CPUID
 			run_cmd ./scripts/config --disable UBSAN
+			run_cmd ./scripts/config --disable MLX4_EN
+			run_cmd ./scripts/config --module MLX4_EN
+			run_cmd ./scripts/config --enable MLX4_EN_DCB
+			run_cmd ./scripts/config --module MLX4_CORE
+			run_cmd ./scripts/config --enable MLX4_DEBUG
+			run_cmd ./scripts/config --enable MLX4_CORE_GEN2
+			run_cmd ./scripts/config --module MLX5_CORE
+			run_cmd ./scripts/config --enable MLX5_FPGA
+			run_cmd ./scripts/config --enable MLX5_CORE_EN
+			run_cmd ./scripts/config --enable MLX5_EN_ARFS
+			run_cmd ./scripts/config --enable MLX5_EN_RXNFC
+			run_cmd ./scripts/config --enable MLX5_MPFS
+			run_cmd ./scripts/config --enable MLX5_ESWITCH
+			run_cmd ./scripts/config --enable MLX5_BRIDGE
+			run_cmd ./scripts/config --enable MLX5_CLS_ACT
+			run_cmd ./scripts/config --enable MLX5_TC_CT
+			run_cmd ./scripts/config --enable MLX5_TC_SAMPLE
+			run_cmd ./scripts/config --enable MLX5_CORE_EN_DCB
+			run_cmd ./scripts/config --enable MLX5_CORE_IPOIB
+			run_cmd ./scripts/config --enable MLX5_SW_STEERING
+			run_cmd ./scripts/config --module MLXSW_CORE
+			run_cmd ./scripts/config --enable MLXSW_CORE_HWMON
+			run_cmd ./scripts/config --enable MLXSW_CORE_THERMAL
+			run_cmd ./scripts/config --module MLXSW_PCI
+			run_cmd ./scripts/config --module MLXSW_I2C
+			run_cmd ./scripts/config --module MLXSW_SPECTRUM
+			run_cmd ./scripts/config --enable MLXSW_SPECTRUM_DCB
+			run_cmd ./scripts/config --module MLXSW_MINIMAL
+			run_cmd ./scripts/config --module MLXFW
 
 			run_cmd echo $COMMIT >../../source-commit.kernel.$V
 		popd >/dev/null
