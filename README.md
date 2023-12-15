@@ -33,6 +33,7 @@
   * [ SWIOTLB allocation failure causing kernel panic](#faq-5)
   * [ virtio-blk fails with out-of-dma-buffer error](#faq-6)
   * [ SEV-INIT fails with error 0x13](#faq-7)
+  * [ SEV Firmware Updates](#faq-8)
   
 <a name="intro"></a>
 # Secure Encrypted Virtualization (SEV)
@@ -569,3 +570,57 @@ And regenerate the grub.cfg.
  Verify that BIT23 is memory encryption (aka SMEE) is set.
  ```
 
+<a name="faq-8"></a>
+ * <b>SEV Firmware Updates</b>
+
+SEV firmware is part of the AMD Secure Processor and is responsible for
+much of the life cycle management of an SEV guest. Updates to the firmware
+can be made available outside the traditional BIOS update path.
+
+On Linux, the AMD Secure Processor driver (ccp) is responsible for updating
+the SEV firmware when the driver is loaded. The driver searches for the firmware
+using the kernel's firmware loading interface. The kernel's firmware loading
+interface will search for the firmware, by name, in a number of locations
+(see <a href="https://github.com/torvalds/linux/blob/master/Documentation/driver-api/firmware/fw_search_path.rst">fw_search_path.rst</a>),
+with the traditional path being /lib/firmware.
+
+The ccp driver searches for three different possible SEV firmware files under
+the "amd" directory, using the first file that is found. The first file that
+is searched for is a firmware file with a CPU family and model specific name,
+then a firmware file with a CPU family and model range name, and finally a
+generic name. The naming convention uses the following format:
+
+* Model specific: amd_sev_famXXh_modelYYh.sbin
+  - where XX is the hex representation of the CPU family
+  - where YY is the hex representation of the CPU model
+
+* Range specific: amd_sev_famXXh_modelYxh.sbin
+  - where XX is the hex representation of the CPU family
+  - where  Y is the hex representation of the first digit of the CPU model
+
+* Generic: sev.fw
+
+For example, for an EPYC processor with a family of 0x19 and a model of 0x01,
+the search order would be::
+
+1.  amd/amd_sev_fam19h_model01h.sbin
+1.  amd/amd_sev_fam19h_model0xh.sbin
+1.  amd/sev.fw
+
+The level of firmware that is loaded can be viewed in the kernel log. For example, issuing
+the command "dmesg | grep ccp":
+<pre>
+[   13.879283] ccp 0000:01:00.5: enabling device (0000 -> 0002)
+[   13.887532] ccp 0000:01:00.5: sev enabled
+[   13.899646] ccp 0000:01:00.5: psp enabled
+[   14.560461] ccp 0000:01:00.5: SEV API:1.55 build:24
+[   14.644793] ccp 0000:01:00.5: SEV-SNP API:1.55 build:24
+</pre>
+
+Since, on Linux, the firmware is updated on driver load of the ccp module, it is possible
+to update the firmware level after the system has booted. At this time, all guests would
+need to be shutdown and the kvm_amd module unloaded before the ccp module could be unloaded
+and reloaded.
+
+SEV firmware can be obtained from the <a href="https://www.amd.com/sev">AMD Secure Encrypted Virtualization
+web portal</a> or through the <a href="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/amd">Linux Firmware repository</a>.
