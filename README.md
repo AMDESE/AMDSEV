@@ -38,14 +38,22 @@ Newer SNP host/kernel support now relies on new kernel infrastructure for managi
 
 ## Build
 
+First install build dependencies. The following has been tested on Ubuntu 22.04:
+
+```
+# apt install build-essential ninja-build python-is-python3 flex bison libncurses-dev gawk openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf llvm
+# sed -i '/deb-src/s/^# //' /etc/apt/sources.list && apt update
+# apt build-dep ovmf qemu-system-x86 linux
+```
+
 The following command builds the host and guest Linux kernel, qemu and ovmf bios used for launching SEV-SNP guest.
 
-````
+```
 # git clone https://github.com/AMDESE/AMDSEV.git
 # git checkout snp-latest
 # ./build.sh --package
 # sudo cp kvm.conf /etc/modprobe.d/
-````
+```
 On succesful build, the binaries will be available in `snp-release-<DATE>`.
 
 ## Prepare Host
@@ -73,7 +81,7 @@ Reboot the machine and choose SNP Host kernel from the grub menu.
 
 Run the following commands to verify that SNP is enabled in the host.
 
-````
+```
 # uname -r
 5.19.0-rc6-sev-es-snp+
 
@@ -89,39 +97,45 @@ Y
 Y
 # cat /sys/module/kvm_amd/parameters/sev_snp 
 Y
-
-````
+```
   
-*NOTE: If your SEV-SNP firmware is older than 1.51, see the "Upgrade SEV firmware" section to upgrade the firmware. *
+*NOTE: If your SEV-SNP firmware is older than 1.51, see the "Upgrade SEV firmware" section to upgrade the firmware.*
   
 ## Prepare Guest
 
-Note: SNP requires OVMF be used as the guest BIOS in order to boot. This implies that the guest must have been initially installed using OVMF so that a UEFI partition is present.
+*Note: SNP requires OVMF be used as the guest BIOS in order to boot. This implies that the guest must have been initially installed using OVMF so that a UEFI partition is present.*
 
 If you do not already have an installed guest, you can use the launch-qemu.sh script to create it:
 
-````
+```
+# qemu-img create -f qcow2 <your_qcow2_file> 30G
 # ./launch-qemu.sh -hda <your_qcow2_file> -cdrom <your_distro_installation_iso_file>
-````
+```
 
-Boot up a guest (tested with Ubuntu 18.04 and 20.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory.
+*Note: to boot in text-only mode, add `console=ttyS0` to the guest kernel command line when booting in Grub.*
+
+Boot up a guest (tested with Ubuntu 18.04, 20.04, and 22.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory and should be copied (e.g., using SSH) to the guest VM first.
+
+```
+# ./launch-qemu.sh -hda <your_qcow2_file>
+```
 
 ## Launch SNP Guest
 
 To launch the SNP guest use the launch-qemu.sh script provided in this repository
 
-````
+```
 # ./launch-qemu.sh -hda <your_qcow2_file> -sev-snp
-````
+```
 
 To launch SNP disabled guest, simply remove the "-sev-snp" from the above command line.
 
 Once the guest is booted, run the following command inside the guest VM to verify that SNP is enabled:
 
-````
+```
 $ dmesg | grep -i snp
 AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
-````
+```
 
 ## Upgrade SEV firmware
 
