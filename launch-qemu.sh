@@ -275,7 +275,7 @@ fi
 
 # If this is SEV guest then add the encryption device objects to enable support
 if [ -n "${SEV}" ]; then
-	add_opts "-machine memory-encryption=sev0,vmport=off" 
+	add_opts "-machine confidential-guest-support=sev0,vmport=off"
 	get_cbitpos
 
 	if [ -n "${SEV_SNP}" ]; then
