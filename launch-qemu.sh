@@ -45,7 +45,6 @@ usage() {
 	echo "                    (Requires that QEMU is built on a host that supports libslirp-dev 4.7 or newer)"
 	echo " -monitor PATH      Path to QEMU monitor socket (default: $MONITOR_PATH)"
 	echo " -log PATH          Path to QEMU console log (default: $QEMU_CONSOLE_LOG)"
-	echo " -certs PATH        Path to SNP certificate blob for guest (default: none)"
 	exit 1
 }
 
@@ -141,9 +140,6 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-log)           QEMU_CONSOLE_LOG="$2"
-				shift
-				;;
-		-certs) CERTS_PATH="$2"
 				shift
 				;;
 		*) 		usage
@@ -290,11 +286,7 @@ if [ -n "${SEV}" ]; then
 
 		add_opts "-object memory-backend-memfd,id=ram1,size=${MEM}M,share=true,prealloc=false"
 		add_opts "-machine memory-backend=ram1"
-		if [ "${CERTS_PATH}" != "" ]; then
-			add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1,certs-path=${CERTS_PATH}"
-		else
-			add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1"
-		fi
+		add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1"
 	else
 		POLICY=$((0x01))
 		[ -n "${SEV_ES}" ] && POLICY=$((POLICY | 0x04))
