@@ -14,6 +14,7 @@ build_kernel()
 {
 	set -x
 	kernel_type=$1
+	kernel_config_path="/boot/config-$(uname -r)"
 	shift
 	mkdir -p linux
 	pushd linux >/dev/null
@@ -29,6 +30,18 @@ build_kernel()
 		# use a copy of guest repo as the host repo
 		run_cmd cp -r guest host
 	fi
+
+	if [ "$kernel_type" == "host" ]; then
+		if [ -n "$KERNEL_HOST_CONFIG_TEMPLATE" ]; then
+			kernel_config_path=${KERNEL_HOST_CONFIG_TEMPLATE}
+		fi
+	else
+		if [ -n "$KERNEL_GUEST_CONFIG_TEMPLATE" ]; then
+			kernel_config_path=${KERNEL_GUEST_CONFIG_TEMPLATE}
+		fi
+	fi
+
+	run_cmd echo "Using $kernel_config_path as template kernel configuration."
 
 	for V in guest host; do
 		# Check if only a "guest" or "host" or kernel build is requested
@@ -71,7 +84,7 @@ build_kernel()
 			run_cmd git checkout current/${BRANCH}
 			COMMIT=$(git log --format="%h" -1 HEAD)
 
-			run_cmd "cp /boot/config-$(uname -r) .config"
+			run_cmd "cp $kernel_config_path .config"
 			run_cmd ./scripts/config --set-str LOCALVERSION "$VER-$COMMIT"
 			run_cmd ./scripts/config --disable LOCALVERSION_AUTO
 			run_cmd ./scripts/config --enable  EXPERT
