@@ -191,7 +191,8 @@ build_install_ovmf()
 		run_cmd git fetch current
 		run_cmd git checkout current/${OVMF_BRANCH}
 		run_cmd git submodule update --init --recursive
-		run_cmd make -C BaseTools
+		run_cmd make -C BaseTools clean
+		run_cmd make -C BaseTools -j $(getconf _NPROCESSORS_ONLN)
 		. ./edksetup.sh --reconfig
 		run_cmd $BUILD_CMD
 
