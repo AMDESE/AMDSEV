@@ -20,6 +20,7 @@ SEV=
 SEV_ES=
 SEV_SNP=
 ALLOW_DEBUG=
+DRY=
 
 EXEC_PATH="./usr/local"
 UEFI_PATH="$EXEC_PATH/share/qemu"
@@ -45,6 +46,7 @@ usage() {
 	echo "                    (Requires that QEMU is built on a host that supports libslirp-dev 4.7 or newer)"
 	echo " -monitor PATH      Path to QEMU monitor socket (default: $MONITOR_PATH)"
 	echo " -log PATH          Path to QEMU console log (default: $QEMU_CONSOLE_LOG)"
+	echo " -dry               Print generated command-line but don't launch the guest"
 	exit 1
 }
 
@@ -140,6 +142,9 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-log)           QEMU_CONSOLE_LOG="$2"
+				shift
+				;;
+		-dry)   DRY="1"
 				shift
 				;;
 		*) 		usage
@@ -333,7 +338,9 @@ stty intr ^]
 echo "Launching VM ..."
 echo "  $QEMU_CMDLINE"
 sleep 1
-bash ${QEMU_CMDLINE} 2>&1 | tee -a ${QEMU_CONSOLE_LOG}
+if [ -z $DRY ]; then
+	bash ${QEMU_CMDLINE} 2>&1 | tee -a ${QEMU_CONSOLE_LOG}
+fi
 
 # restore the mapping
 stty intr ^c
