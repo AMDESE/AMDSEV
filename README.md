@@ -118,7 +118,7 @@ Y
 
 Note: SNP requires OVMF be used as the guest BIOS in order to boot. This implies that the guest must have been initially installed using OVMF so that a UEFI partition is present.
 
-If you do not already have an installed guest, you can use the launch-qemu.sh script to create it:
+If you do not already have an installed guest, you can use the launch-qemu.sh script to create it (be sure to append "console=ttyS0,115200n8" to the installation kernel command line in order to perform the installation via the serial console):
 
 ````
 # ./launch-qemu.sh -hda <your_qcow2_file> -cdrom <your_distro_installation_iso_file>
