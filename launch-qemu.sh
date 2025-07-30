@@ -225,7 +225,7 @@ rm -rf $QEMU_CMDLINE
 add_opts "$QEMU_EXE"
 
 # Basic virtual machine property
-add_opts "-enable-kvm -cpu ${CPU_MODEL} -machine q35"
+add_opts "-enable-kvm -cpu ${CPU_MODEL},+la57,phys-bits=52 -machine q35"
 
 # add number of VCPUs
 [ -n "${SMP}" ] && add_opts "-smp ${SMP},maxcpus=255"
