@@ -77,7 +77,12 @@ build_kernel()
 
 		MAKE="make -C ${V} -j $(getconf _NPROCESSORS_ONLN) LOCALVERSION="
 
-		run_cmd $MAKE distclean
+		# dirty directories might cause checkout to fail, but first time checkout
+		# won't have a Makefile in the first place to allow for failures in that
+		# case
+		if [ -f ${V}/Makefile ]; then
+			run_cmd $MAKE distclean
+		fi
 
 		pushd ${V} >/dev/null
 			run_cmd git fetch current
