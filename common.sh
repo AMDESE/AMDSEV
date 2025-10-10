@@ -31,18 +31,6 @@ build_kernel()
 		run_cmd cp -r guest host
 	fi
 
-	if [ "$kernel_type" == "host" ]; then
-		if [ -n "$KERNEL_HOST_CONFIG_TEMPLATE" ]; then
-			kernel_config_path=${KERNEL_HOST_CONFIG_TEMPLATE}
-		fi
-	else
-		if [ -n "$KERNEL_GUEST_CONFIG_TEMPLATE" ]; then
-			kernel_config_path=${KERNEL_GUEST_CONFIG_TEMPLATE}
-		fi
-	fi
-
-	run_cmd echo "Using $kernel_config_path as template kernel configuration."
-
 	for V in guest host; do
 		# Check if only a "guest" or "host" or kernel build is requested
 		if [ "$kernel_type" != "" ]; then
@@ -53,9 +41,18 @@ build_kernel()
 
 		if [ "${V}" = "guest" ]; then
 			BRANCH="${KERNEL_GUEST_BRANCH}"
+			kernel_config_path=${KERNEL_GUEST_CONFIG_TEMPLATE}
+			if [ -n "$KERNEL_GUEST_CONFIG_TEMPLATE" ]; then
+				kernel_config_path=${KERNEL_GUEST_CONFIG_TEMPLATE}
+			fi
 		else
 			BRANCH="${KERNEL_HOST_BRANCH}"
+			if [ -n "$KERNEL_HOST_CONFIG_TEMPLATE" ]; then
+				kernel_config_path=${KERNEL_HOST_CONFIG_TEMPLATE}
+			fi
 		fi
+
+		run_cmd echo "Using $kernel_config_path as template kernel configuration for $V."
 
 		# If ${KERNEL_GIT_URL} is ever changed, 'current' remote will be out
 		# of date, so always update the remote URL first. Also handle case
