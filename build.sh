@@ -57,6 +57,10 @@ if [ -z "$1" ]; then
 	build_install_qemu "$INSTALL_DIR"
 	build_install_ovmf "$INSTALL_DIR/share/qemu"
 	build_kernel $2
+	if [ $? -ne 0 ]; then
+		echo "build failed: $?"
+		exit 1
+	fi
 else
 	case "$1" in
 	qemu)
