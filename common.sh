@@ -41,7 +41,6 @@ build_kernel()
 
 		if [ "${V}" = "guest" ]; then
 			BRANCH="${KERNEL_GUEST_BRANCH}"
-			kernel_config_path=${KERNEL_GUEST_CONFIG_TEMPLATE}
 			if [ -n "$KERNEL_GUEST_CONFIG_TEMPLATE" ]; then
 				kernel_config_path=${KERNEL_GUEST_CONFIG_TEMPLATE}
 			fi
