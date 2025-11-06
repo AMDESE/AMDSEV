@@ -16,5 +16,5 @@ QEMU_GIT_URL="https://github.com/AMDESE/qemu.git"
 QEMU_BRANCH="snp-latest"
 
 # guest bios (snp-latest branch currently points to "edk2-stable202502")
-OVMF_GIT_URL="https://github.com/AMDESE/ovmf.git"
-OVMF_BRANCH="snp-latest"
+OVMF_GIT_URL="https://github.com/tianocore/edk2.git"
+OVMF_BRANCH="master"
