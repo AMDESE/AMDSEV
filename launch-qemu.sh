@@ -24,6 +24,7 @@ DRY=
 
 EXEC_PATH="./usr/local"
 UEFI_PATH="$EXEC_PATH/share/qemu"
+QEMU_EXE=
 
 usage() {
 	echo "$0 [options]"
@@ -46,6 +47,7 @@ usage() {
 	echo "                    (Requires that QEMU is built on a host that supports libslirp-dev 4.7 or newer)"
 	echo " -monitor PATH      Path to QEMU monitor socket (default: $MONITOR_PATH)"
 	echo " -log PATH          Path to QEMU console log (default: $QEMU_CONSOLE_LOG)"
+	echo " -qemu-exe PATH     Path to QEMU executable (default: $EXEC_PATH/bin/qemu-system-x86_64)"
 	echo " -dry               Print generated command-line but don't launch the guest"
 	exit 1
 }
@@ -144,6 +146,9 @@ while [ -n "$1" ]; do
 		-log)           QEMU_CONSOLE_LOG="$2"
 				shift
 				;;
+		-qemu-exe)      QEMU_EXE="$2"
+				shift
+				;;
 		-dry)   DRY="1"
 				shift
 				;;
@@ -154,8 +159,10 @@ while [ -n "$1" ]; do
 	shift
 done
 
-TMP="$EXEC_PATH/bin/qemu-system-x86_64"
-QEMU_EXE="$(readlink -e $TMP)"
+if [ -z "$QEMU_EXE" ]; then
+	TMP="$EXEC_PATH/bin/qemu-system-x86_64"
+	QEMU_EXE="$(readlink -e $TMP)"
+fi
 [ -z "$QEMU_EXE" ] && {
 	echo "Can't locate qemu executable [$TMP]"
 	usage
