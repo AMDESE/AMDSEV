@@ -176,7 +176,7 @@ build_install_ovmf()
 		sudo dnf install -y libuuid-devel nasm acpica-tools
 	fi
 
-	BUILD_CMD="nice build -q --cmd-len=64436 -DDEBUG_ON_SERIAL_PORT=TRUE -n $(getconf _NPROCESSORS_ONLN) ${GCCVERS:+-t $GCCVERS} -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
+	BUILD_CMD="nice build -q --cmd-len=64436 -n $(getconf _NPROCESSORS_ONLN) ${GCCVERS:+-t $GCCVERS} -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
 
 	# initialize git repo, or update existing remote to currently configured one
 	if [ -d ovmf ]; then
