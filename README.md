@@ -2,59 +2,72 @@
 
 This repo will build host/guest kernel, QEMU, and OVMF packages that are known to work in conjunction with the latest development trees for SNP host/hypervisor support. The build scripts will utilize the latest published [development tree for the SNP host kernel](https://github.com/amdese/linux/tree/snp-host-latest), which will generally correspond to the latest patchset posted upstream along with fixes/changes on top resulting from continued development/testing and upstream review. It will also utilize the latest published [development tree for QEMU](https://github.com/amdese/qemu/tree/snp-latest).
 
-Note that SNP hypervisor support is still being actively developed/upstreamed and should be used only for preview/testing/development purposes. Please report any issues with it or any other components built by these scripts via the issue tracker for this repo [here](https://github.com/AMDESE/AMDSEV/issues).
+Note that SNP hypervisor support is still being actively developed/upstreamed. Branhes of this repository provide early snapshots of new features. Please report any issues with it or any other components built by these scripts via the issue tracker for this repo [here](https://github.com/AMDESE/AMDSEV/issues).
 
 Follow the below steps to build the required components and launch an SEV-SNP guest. These steps are tested primarily in conjunction with Ubuntu 22.04 hosts/guests, but other distros are supported to some degree by contributors to this repo.
 
 NOTE: If you're building from an existing checkout of this repo and have build issues with edk2, delete the ovmf/ directory prior to starting the build so that it can be re-initialized cleanly.
 
-## Upgrading from 6.9.0-rc1-based SNP hypervisor/host kernels
+## Upstream support
 
-This repo is now periodically sync'd with the latest upstream SNP KVM patches, which were merged in the upstream [kvm/next tree](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/log/?h=next) as of 2024-05-12.
+SEV is an extension to the AMD-V architecture which supports running encrypted
+virtual machine (VMs) under the control of KVM. Encrypted VMs have their pages
+(code and data) secured such that only the guest itself has access to the
+unencrypted version. Each encrypted VM is associated with a unique encryption
+key; if its data is accessed by a different entity using a different key, the
+encrypted guests data will be incorrectly decrypted, leading to unintelligible
+data.
 
-Based on the discussion regarding the final submission of the patches, the SNP_PAUSE_ATTESTATION/SNP_RESUME_ATTESTATION interfaces mentioned below have been removed in favor of an alternative approach that is still being discussed upstream. Will update this section when that approach is finalized, but until then it is recommended to not update firmware endorsement keys or associated certificates while an SNP guest is running unless it is known that attestation requests will not be made by the guest while the update of said key/certificate is taking place.
+SEV support has been accepted in upstream projects. This repository provides
+scripts to build various components to enable SEV support until the distros
+pick the newer version of components.
 
-## Upgrading from 6.8.0-rc5-based SNP hypervisor/host kernels
+To enable SEV support we need the following versions.
 
-QEMU command-line options have changed for basic booting of SNP guests. Please see the launch-qemu.sh script in this repository for updated options.
+| Project       | Version                              |
+| ------------- |:------------------------------------:|
+| kernel        | >= 4.16                              |
+| libvirt       | >= 4.5                               |
+| qemu          | >= 2.12                              |
+| ovmf          | >= commit (75b7aa9528bd 2018-07-06 ) |
 
-The latest upstream version guest_memfd (which the SNP KVM support relies on) no longer supports 2MB hugepages for backing guests. There are discussions on how best to re-enable this support, but in the meantime SNP guests will utilize 4K pages for private guest memory. Please keep this in mind for any performance-related testing/observations.
+SEV-ES is an extension to SEV that protects the guest register state from the
+hypervisor. An SEV-ES guest's register state is encrypted during world switches
+and cannot be directly accessed or modified by the hypervisor. SEV-ES includes
+architectural support for notifying a guest's operating system when certain
+types of world switches are about to occur through a new exception. This allows
+the guest operating system to selective share information with the hypervisor
+when needed for functionality.
 
-SNP KVM support is now based on top of the new KVM_SEV_INIT2 ioctl, which deprecates the older KVM_SEV_INIT, KVM_SEV_ES_INIT, and KVM_SEV_SNP_INIT ioctls that VMMs previously relied on for starting SEV/SEV-ES/SEV-SNP guests, respectively. This newer KVM_SEV_INIT2 interface syncs additional VMSA state for SEV-ES and SEV-SNP, which will result in different measurement calculations. Additionally, the 'vmsa_features' field of the VMSA will no longer have SVM_SEV_FEAT_DEBUG_SWAP (bit 5) set according to kvm_amd.debug_swap module parameter, and will instead default to 0. More information on the specific VMSA differences are available [here](https://lore.kernel.org/kvm/20240409230743.962513-1-michael.roth@amd.com/), along with details on how to modify the QEMU machine type to continue utilizing the older KVM_SEV_ES_INIT interface for SEV-ES guests to retain the legacy handling. For SNP, the new interface/handling is required.
+SEV-ES support has been submitted and accepted in upstream projects. The
+upstream version of the projects should be used.
 
-The SNP_SET_CONFIG_START/SNP_SET_CONFIG_END ioctls mentioned below have now been renamed to SNP_PAUSE_ATTESTATION/SNP_RESUME_ATTESTATION. Please see Section 2.7 [here](https://github.com/AMDESE/linux/blob/snp-host-v12/Documentation/virt/coco/sev-guest.rst) for more details on usage.
+To enable SEV-ES support we need the following versions.
 
-It is also worth noting that a patched OVMF is now required to boot SNP guests using the latest kernel. The 'snp-latest' branch referenced in the stable-commits file contains the required patch and will be used automatically when building from source using the scripts in this repo.
+| Project       | Version/Tag                          |
+| ------------- |:------------------------------------:|
+| kernel        | >= 5.11                              |
+| libvirt       | >= 4.5                               |
+| qemu          | >= 6.00                              |
+| ovmf          | >= edk2-stable202102                 |
 
-## Upgrading from 6.6-based SNP hypervisor/host kernels
+* SEV support is not available in SeaBIOS. Guest must use OVMF.
 
-QEMU command-line options have changed for basic booting of SNP guests. Please see the launch-qemu.sh script in this repository for updated options.
+SEV-SNP is an extension to SEV-ES that protects guest memory integrity and
+prevents unauthorized memory remapping attacks by the hypervisor.
+An SEV-SNP guest's memory is protected by the Reverse Map Table (RMP),
+a system-managed data structure that tracks the ownership and state of
+each physical page. The RMP enforces that each page can only be assigned to
+a single guest at a time and validates all memory state transitions.
 
-There is also now a new -certs option for launch-qemu.sh, which corresponds to a new QEMU 'certs-path' parameter (see launch-qemu.sh for specifics) that needs to be set when specifying a certificate blob to be passed to guests when they request an attestation report via extended guest requests. This was previously handled via the SNP_SET_EXT_CONFIG SEV device IOCTL, which handled both updating the ReportedTCB for the system in conjunction with updating the certificate blob corresponding to the attestation report signatures associated with that particular ReportedTCB. These 2 tasks are now handled separately:
+To enable SEV-SNP support we need the following versions.
 
- * certificate updates are handled by simply updated the certificate blob file specified by the above-mentioned -certs-path parameter
- * ReportedTCB updates are handled by a new IOCTL, SNP_SET_CONFIG, which is similar to SNP_SET_EXTENDED_CONFIG, but no longer provides any handling for certificate updates.
-
-There are also 2 new IOCTLs, SNP_SET_CONFIG_START/SNP_SET_CONFIG_END, which can be used in cases where there are running SNP guests on a system and the ReportedTCB and certs file updates need to done atomically relative to any attestation requests that might be issued while updating those 2 things.
-
-The SNP_GET_EXT_CONFIG has also been removed, since without any handling for certificates it is now redundant with the information already available via the SNP_PLATFORM_STATUS IOCTL.
-
-For more details on any of the above IOCTLs, see the latest [SEV IOCTL documentation](https://github.com/AMDESE/linux/blob/snp-host-latest/Documentation/virt/coco/sev-guest.rst) in the kernel.
-
-Various host-side tools need to be updated to handle these changes, so if you are relying on any such tools to handle the above tasks, please verify whether or not the necessary changes are in place yet and plan accordingly.
-
-## Upgrading from 6.5-based SNP hypervisor/host kernels
-
-If you were previously using a build based on kernel 6.5-rc2 host kernel, you may notice a drop in boot-time performance switch over to the latest kernel. This is due to [SRSO mitigations](https://www.amd.com/content/dam/amd/en/documents/corporate/cr/speculative-return-stack-overflow-whitepaper.pdf) that were added in later versions of kernel 6.5 and enabled by default. While it is not recommended, you can use the 'spec_rstack_overflow=off' kernel command-line options in both host and guest to disable these mitigations for the purposes of evaluating performance differences vs. previous builds.
-
-## Upgrading from 5.19-based SNP hypervisor/host kernels
-
-If you are building packages to use in conjunction with an older 5.19-based SNP host/hypervisor kernel, then please use the [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) branch of this repo instead, which will ensure that compatible QEMU/OVMF trees are used instead. Please consider switching to the latest development trees used by this branch however, as [sev-snp-devel](https://github.com/amdese/amdsev/tree/sev-snp-devel) is no longer being actively developed.
-
-Newer SNP host/kernel support now relies on new kernel infrastructure for managing private guest memory called guest_memfd[1] (a.k.a. "gmem", or "Unmapped Private Memory"). This reliance on guest_memfd brings about some new requirements/limitations in the current tree that users should be aware:
-* Assigning NUMA affinities for private guest memory is not supported.
-* Guest private memory is now accounted as shared memory rather than used memory, so please take this into account when monitoring memory usage.
-* The QEMU command-line options to launch an SEV-SNP guest have changed. Setting these options will be handled automatically when using the launch-qemu.sh script mentioned in the instructions below. If launching QEMU directly, please still reference the script to determine the correct QEMU options to use.
+| Project       | Version/Tag                          |
+| ------------- |:------------------------------------:|
+| kernel        | >= 6.11                              |
+| libvirt       | >= (FIXME)                           |
+| qemu          | >= 10.00 (FIXME)                     |
+| ovmf          | >= (FIXME)                           |
 
 ## Build
 
@@ -173,8 +186,120 @@ $ sudo dmesg | grep -i sev
 ```
 For Genoa firmware updates, the system BIOS has to be updated to get the latest sev firmware.
 
-## Reference
 
-https://developer.amd.com/sev/
+<a name="resources"></a>
+# Additional Resources
 
-[1] guest_memfd (a.k.a. "gmem", or "Unmapped Private Memory"): https://lore.kernel.org/kvm/20230914015531.1419405-1-seanjc@google.com/
+[AMD SEV developer portal](https://developer.amd.com/sev/)
+
+[SME/SEV white paper](http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/12/AMD_Memory_Encryption_Whitepaper_v7-Public.pdf)
+
+[SEV API Spec](https://www.amd.com/system/files/TechDocs/55766_SEV-KM_API_Specification.pdf)
+
+[APM Section 15.34](http://support.amd.com/TechDocs/24593.pdf)
+
+[KVM forum slides](http://www.linux-kvm.org/images/7/74/02x08A-Thomas_Lendacky-AMDs_Virtualizatoin_Memory_Encryption_Technology.pdf)
+
+[KVM forum videos](https://www.youtube.com/watch?v=RcvQ1xN55Ew)
+
+[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/virtual/kvm/amd-memory-encryption.rst)
+
+[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
+
+[Libvirt LaunchSecurity tag](https://libvirt.org/formatdomain.html#sev)
+
+[Libvirt SEV](https://libvirt.org/kbase/launch_security_sev.html)
+
+[Libvirt SEV domainCap](https://libvirt.org/formatdomaincaps.html#elementsSEV)
+
+[Qemu doc](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
+
+[guest_memfd (a.k.a. "gmem", or "Unmapped Private Memory")](https://lore.kernel.org/kvm/20230914015531.1419405-1-seanjc@google.com/)
+
+<a name="faq"></a>
+# FAQ
+
+<a name="faq-1"></a>
+ * <b>How do I know if hypervisor supports SEV feature ?</b>
+
+   a) When using libvirt >= 4.15 run the following command
+
+   ```
+   # virsh domcapabilities
+   ```
+   If hypervisor supports SEV feature then <b>sev</b> tag will be present.
+
+   >See [Libvirt DomainCapabilities feature](https://libvirt.org/formatdomaincaps.html#elementsSEV)
+for additional information.
+
+   b) Use qemu QMP 'query-sev-capabilities' command to check the SEV support. If SEV is supported then command will return the full SEV capabilities (which includes host PDH, cert-chain, cbitpos and reduced-phys-bits).
+
+     > See [QMP doc](https://github.com/qemu/qemu/blob/master/docs/devel/writing-qmp-commands.txt) for details on how to interact with QMP shell.
+
+<a name="faq-2"></a>
+ * <b>How do I know if SEV is enabled in the guest ?</b>
+
+   a) Check the kernel log buffer for the following message
+   ```
+   # dmesg | grep -i sev
+   AMD Secure Encrypted Virtualization (SEV) active
+   ```
+
+   b) MSR 0xc0010131 (MSR_AMD64_SEV) can be used to determine if SEV is active
+
+   ```
+   # rdmsr -a 0xc0010131
+   ```
+   <pre>
+   Bit[0]:   0 = SEV is not active
+             1 = SEV is active
+   </pre>
+
+<a name="faq-3"></a>
+ * <b>Can I use virt-manager to launch SEV guest?</b>
+
+    virt-manager uses libvirt to manage VMs, SEV support has been added in libvirt but virt-manager does use the newly introduced [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) tags yet hence we will not able to launch SEV guest through the virt-manager.
+    > If your system is using libvirt >= 4.15 then you can manually edit the xml file to use [LaunchSecurity](https://libvirt.org/formatdomain.html#sev) to enable the SEV support in the guest.
+
+<a name="faq-4"></a>
+ * <b>How to increase SWIOTLB limit ?</b>
+
+ When SEV is enabled, all the DMA operations inside the guest are performed on the shared memory. Linux kernel uses SWIOTLB  bounce buffer for DMA operations inside SEV guest. A guest panic will occur if kernel runs out of the SWIOTLB pool. Linux kernel default to 64MB SWIOTLB pool. It is recommended to increase the swiotlb pool size to 512MB. The swiotlb pool size can be increased in guest by appending the following in the grub.cfg file
+
+ Append the following in /etc/defaults/grub
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT=".... swiotlb=262144"
+```
+
+And regenerate the grub.cfg.
+
+<a name="faq-5"></a>
+ * <b>SWIOTLB allocation failure causing kernel panic </b>
+
+ SWIOTLB size, when not specifically specified, is automatically calculated based on the amount of guest memory, up to 1GB maximum. However, the guest may not have enough contiguous memory below 4GB to satisify the SWIOTLB allocation requirement, in which case the kernel will panic:
+
+ <pre>
+ [    0.004318] software IO TLB: SWIOTLB bounce buffer size adjusted to 965MB
+ ...
+ [    1.015953] Kernel panic - not syncing: Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer
+ </pre>
+
+ In this situation, please specify the SWIOTLB size, as shown in [ How to increase SWIOTLB limit](#faq-4), to a value that allows the guest to boot.
+
+<a name="faq-6"></a>
+ * <b>virtio-blk device runs out-of-dma-buffer error </b>
+
+ To support the multiqueue mode, virtio-blk drivers inside the guest allocates large number of DMA buffer. SEV guest uses SWIOTLB for the DMA buffer allocation or mapping hence kernel runs of the SWIOTLB pool quickly and triggers the out-of-memory error. In those cases consider increasing the SWIOTLB pool size or use virtio-scsi device.
+
+ <a name="faq-7"></a>
+ * <b>SEV_INIT fails with error 0x13 </b>
+
+ The error 0x13 is a defined as HWERROR_PLATFORM in the SEV specification. The error indicates that memory encryption support is not enabled in the host BIOS. Look for  the SMEE setting in your BIOS menu and explicitly enable it. You can verify that SMEE is enabled on your machine by running the below command
+ ```
+ $ sudo modprobe msr
+ $ sudo rdmsr  0xc0010010
+ 3f40000
+
+ Verify that BIT23 is memory encryption (aka SMEE) is set.
+ ```
