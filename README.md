@@ -71,17 +71,17 @@ On succesful build, the binaries will be available in `snp-release-<DATE>`.
 ## Prepare Host
 
 Verify that the following BIOS settings are enabled. The setting may vary based on the vendor BIOS. The menu options below are from an AMD BIOS.
-  
+
 ```
-  CBS -> CPU Common ->
-                SEV-ES ASID space Limit Control -> Manual
-                SEV-ES ASID space limit -> 100
-                SNP Memory Coverage -> Enabled 
-                SMEE -> Enabled
-      -> NBIO common ->
-                SEV-SNP -> Enabled
+Advanced → AMD CBS → CPU Common Options
+    SMEE → Enable
+    SEV Control → Enable
+    SEV-ES ASID Space Limit → 99
+    SNP Memory (RMP Table) Coverage → Enabled
+Advanced → NBIO Common Options → IOMMU/Security
+    SEV-SNP Support → Enable
 ```
-  
+
 Run the following command to install the Linux kernel on the host machine.
 
 ```
@@ -94,26 +94,26 @@ Reboot the machine and choose SNP Host kernel from the grub menu.
 Run the following commands to verify that SNP is enabled in the host.
 
 ````
-# uname -r
-5.19.0-rc6-sev-es-snp+
-
-# dmesg | grep -i -e rmp -e sev
-SEV-SNP: RMP table physical address 0x0000000035600000 - 0x0000000075bfffff
-ccp 0000:23:00.1: sev enabled
-ccp 0000:23:00.1: SEV-SNP API:1.51 build:1
-SEV supported: 410 ASIDs
-SEV-ES and SEV-SNP supported: 99 ASIDs
+# dmesg | grep -e SEV-SNP -e RMP
+SEV-SNP: Segmented RMP base table physical range [0x000000009ba00000 - 0x000000009ba05000]
+SEV-SNP: Reserving start/end of RMP table on a 2MB boundary [0x0000000055a00000]
+SEV-SNP: Reserving start/end of RMP table on a 2MB boundary [0x0000000075a00000]
+SEV-SNP: Segmented RMP using 128GB segments
+SEV-SNP: RMP segment 0 physical address [0x8800000 - 0x10ffffff] covering [0x0 - 0x87fffffff]
+SEV-SNP: RMP segment 8 physical address [0x55b00000 - 0x75afffff] covering [0x10000000000 - 0x11fffffffff]
+SEV-SNP: RMP segment 9 physical address [0x35a00000 - 0x559fffff] covering [0x12000000000 - 0x13fffffffff]
+ccp 0000:a9:00.5: SEV-SNP API:1.58 build:5
+kvm_amd: SEV-SNP enabled (ASIDs 1 - 98)
 # cat /sys/module/kvm_amd/parameters/sev
 Y
-# cat /sys/module/kvm_amd/parameters/sev_es 
+# cat /sys/module/kvm_amd/parameters/sev_es
 Y
-# cat /sys/module/kvm_amd/parameters/sev_snp 
+# cat /sys/module/kvm_amd/parameters/sev_snp
 Y
 
 ````
-  
-*NOTE: If your SEV-SNP firmware is older than 1.51, see the "Upgrade SEV firmware" section to upgrade the firmware. *
-  
+
+*NOTE: If your SEV-SNP firmware is older than 1.54, see the "Upgrade SEV firmware" section to upgrade the firmware*
 ## Prepare Guest
 
 Note: SNP requires OVMF be used as the guest BIOS in order to boot. This implies that the guest must have been initially installed using OVMF so that a UEFI partition is present.
@@ -124,7 +124,7 @@ If you do not already have an installed guest, you can use the launch-qemu.sh sc
 # ./launch-qemu.sh -hda <your_qcow2_file> -cdrom <your_distro_installation_iso_file>
 ````
 
-Boot up a guest (tested with Ubuntu 18.04 and 20.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory.
+Boot up a guest (tested with Ubuntu 22.04 and 24.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory.
 
 ## Launch SNP Guest
 
