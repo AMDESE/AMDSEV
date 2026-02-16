@@ -137,6 +137,9 @@ build_kernel()
 			run_cmd ./scripts/config --enable MLXSW_SPECTRUM_DCB
 			run_cmd ./scripts/config --module MLXSW_MINIMAL
 			run_cmd ./scripts/config --module MLXFW
+			run_cmd ./scripts/config --enable KVM_VM_MEMORY_ATTRIBUTES
+			run_cmd ./scripts/config --enable KVM_GUEST_MEMFD
+			run_cmd ./scripts/config --enable KVM_GUEST_MEMFD_HUGETLB
 
 			run_cmd echo $COMMIT >../../source-commit.kernel.$V
 		popd >/dev/null

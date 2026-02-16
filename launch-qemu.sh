@@ -16,6 +16,7 @@ QEMU_CONSOLE_LOG=`pwd`/stdout.log
 CERTS_PATH=
 VFIO_DEV=
 HUGEPAGES=
+INPLACEMEM="false"
 
 
 SEV=
@@ -154,6 +155,7 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-vfio)		VFIO_DEV="$2"
+				INPLACEMEM="true"
 				shift
 				;;
 		*) 		usage
@@ -300,7 +302,7 @@ if [ -n "${SEV}" ]; then
 
 		add_opts "-object memory-backend-memfd,id=ram1,size=${MEM}M,share=true,prealloc=false"
 		add_opts "-machine memory-backend=ram1"
-		add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1${HUGEPAGES}"
+		add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1,convert-in-place=${INPLACEMEM}${HUGEPAGES}"
 	else
 		POLICY=$((0x01))
 		[ -n "${SEV_ES}" ] && POLICY=$((POLICY | 0x04))
