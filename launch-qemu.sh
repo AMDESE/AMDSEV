@@ -14,6 +14,8 @@ CPU_MODEL="EPYC-v4"
 MONITOR_PATH=monitor
 QEMU_CONSOLE_LOG=`pwd`/stdout.log
 CERTS_PATH=
+VFIO_DEV=
+HUGEPAGES=
 
 
 SEV=
@@ -34,6 +36,7 @@ usage() {
 	echo " -bios              the bios to use (default $UEFI_PATH)"
 	echo " -hda PATH          hard disk file (default $HDA)"
 	echo " -mem MEM           guest memory size in MB (default $MEM)"
+	echo " -hugepages         Use 2M pages for guest memory"
 	echo " -smp NCPUS         number of virtual cpus (default $SMP)"
 	echo " -cpu CPU_MODEL     QEMU CPU model/type to use (default $CPU_MODEL)."
 	echo "                    You can also specify additional CPU flags, e.g. -cpu $CPU_MODEL,+avx512f,+avx512dq"
@@ -47,6 +50,7 @@ usage() {
 	echo " -monitor PATH      Path to QEMU monitor socket (default: $MONITOR_PATH)"
 	echo " -log PATH          Path to QEMU console log (default: $QEMU_CONSOLE_LOG)"
 	echo " -dry               Print generated command-line but don't launch the guest"
+	echo " -vfio DEV          Pass through PCI device"
 	exit 1
 }
 
@@ -112,6 +116,8 @@ while [ -n "$1" ]; do
 		-mem)  		MEM="$2"
 				shift
 				;;
+		-hugepages)	HUGEPAGES=",gmem-allocator=hugetlb,gmem-page-size=2097152"
+				;;
 		-smp)		SMP="$2"
 				shift
 				;;
@@ -145,6 +151,9 @@ while [ -n "$1" ]; do
 				shift
 				;;
 		-dry)   DRY="1"
+				shift
+				;;
+		-vfio)		VFIO_DEV="$2"
 				shift
 				;;
 		*) 		usage
@@ -291,7 +300,7 @@ if [ -n "${SEV}" ]; then
 
 		add_opts "-object memory-backend-memfd,id=ram1,size=${MEM}M,share=true,prealloc=false"
 		add_opts "-machine memory-backend=ram1"
-		add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1"
+		add_opts "-object sev-snp-guest,id=sev0,policy=${POLICY},cbitpos=${CBITPOS},reduced-phys-bits=1${HUGEPAGES}"
 	else
 		POLICY=$((0x01))
 		[ -n "${SEV_ES}" ] && POLICY=$((POLICY | 0x04))
@@ -319,6 +328,11 @@ if [ "${CONSOLE}" = "serial" ]; then
 	add_opts "-nographic"
 else
 	add_opts "-vga ${CONSOLE}"
+fi
+
+if [ "${VFIO_DEV}" != "" ]; then
+	add_opts "-object iommufd,id=i0"
+	add_opts "-device vfio-pci,host=${VFIO_DEV},iommufd=i0"
 fi
 
 # start monitor on pty and named socket 'monitor'
