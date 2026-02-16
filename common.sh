@@ -170,6 +170,12 @@ build_install_ovmf()
 		GCCVERS="GCC5"
 	fi
 
+	if [ "$ID" = "debian" ] || [ "$ID_LIKE" = "debian" ]; then
+		sudo apt-get install -y uuid-dev nasm acpica-tools
+	else
+		sudo dnf install -y libuuid-devel nasm acpica-tools
+	fi
+
 	BUILD_CMD="nice build -q --cmd-len=64436 -DDEBUG_ON_SERIAL_PORT=TRUE -n $(getconf _NPROCESSORS_ONLN) ${GCCVERS:+-t $GCCVERS} -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
 
 	# initialize git repo, or update existing remote to currently configured one
@@ -210,6 +216,12 @@ build_install_ovmf()
 build_install_qemu()
 {
 	DEST="$1"
+
+	if [ "$ID" = "debian" ] || [ "$ID_LIKE" = "debian" ]; then
+		sudo apt-get install -y libslirp-dev
+	else
+		sudo dnf install -y libslirp-devel
+	fi
 
 	# initialize git repo, or update existing remote to currently configured one
 	if [ -d qemu ]; then
