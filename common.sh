@@ -140,6 +140,8 @@ build_kernel()
 			run_cmd ./scripts/config --enable KVM_VM_MEMORY_ATTRIBUTES
 			run_cmd ./scripts/config --enable KVM_GUEST_MEMFD
 			run_cmd ./scripts/config --enable KVM_GUEST_MEMFD_HUGETLB
+			run_cmd ./scripts/config --enable PCI_TSM
+			run_cmd ./scripts/config --enable IOMMUFD_VFIO_CONTAINER
 
 			run_cmd echo $COMMIT >../../source-commit.kernel.$V
 		popd >/dev/null

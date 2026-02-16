@@ -6,6 +6,8 @@ Note that SNP hypervisor support is still being actively developed/upstreamed. B
 
 Follow the below steps to build the required components and launch an SEV-SNP guest. These steps are tested primarily in conjunction with Ubuntu 22.04 hosts/guests, but other distros are supported to some degree by contributors to this repo.
 
+This branch also provides basic support for passing through PCIe TEE-IO capable devices. TEE-IO has been introduced in PCIe r6.1 and includes IDE and TDISP protocols.
+
 NOTE: If you're building from an existing checkout of this repo and have build issues with edk2, delete the ovmf/ directory prior to starting the build so that it can be re-initialized cleanly.
 
 ## Upstream support
@@ -75,7 +77,7 @@ The following command builds the host and guest Linux kernel, qemu and ovmf bios
 
 ````
 # git clone https://github.com/AMDESE/AMDSEV.git
-# git checkout snp-latest
+# git checkout tsm
 # ./build.sh --package
 # sudo cp kvm.conf /etc/modprobe.d/
 ````
@@ -94,6 +96,31 @@ Advanced → AMD CBS → CPU Common Options
 Advanced → NBIO Common Options → IOMMU/Security
     SEV-SNP Support → Enable
 ```
+
+#### SEV-TIO
+
+SEV-TIO requires segmented RMP and SEV-TIO support enabled in the BIOS:
+
+```
+    Advanced → AMD CBS → CPU Common Options
+        RMP Coverage for 64Bit MMIO Ranges → Enabled
+        Segmented  RMP Table → Enabled
+    Advanced → NBIO Debug Options
+        SEV-TIO Support → Enabled
+        PCIE IDE Capability → Enable
+```
+
+`Socket0 RootBridge Mask for 64Bit MMIO RMP Coverage` specifies hex mask of rootports which RMP segments are set up for.
+`FF` enables all ports but wastes memory required for an RMP segment.
+Run `lspci` on a PCI device to be passed through and use any BAR in the following formula:
+`bit((DEVICE_BAR - 0x10000000000)>>37)`.
+For example, `0000:40:00.0` uses `2`, `0001:c1:00.0` uses `1`, `0000:e1:00.0` uses `0`.
+
+Diagnose RMP: `dmesg | grep "RMP segment”` and check if the passed through device's TEE-IO BARs fall into any segment.
+
+Diagnose if SEV-TIO enabled in the BIOS: `dmesg | grep EFR2` and check if EFR2 has bit#1 set.
+
+The `Number of PCI Segments` must be `auto` or `1` for SEV-TIO.
 
 Run the following command to install the Linux kernel on the host machine.
 
@@ -123,10 +150,29 @@ Y
 Y
 # cat /sys/module/kvm_amd/parameters/sev_snp
 Y
-
 ````
 
 *NOTE: If your SEV-SNP firmware is older than 1.54, see the "Upgrade SEV firmware" section to upgrade the firmware*
+
+
+#### SEV-TIO
+
+The below assumes that the PF driver is loaded and 1 VF is created for later passing through to a SNP VM.
+SEV-TIO relies on the new in-place memory conversion mechanism which `./launch-qemu.sh` enables.
+There is an optional support for hugepages memory backed, use the `-hugepages` switch for `./launch-qemu.sh`.
+The `tools/crypto/tsm/ide.sh` script in the Linux tree provides basic diagnostic for a state of the PCIe IDE stream.
+
+````
+#!/bin/bash
+
+sudo modprobe ccp
+sudo bash -c 'echo 1 > /sys/bus/pci/devices/0000:c1:00.0/sriov_numvfs'
+sudo bash -c 'echo tsm0 > /sys/bus/pci/devices/0000:c1:00.0/tsm/connect'
+cat '/sys/bus/pci/devices/0000:c1:00.0/tsm/connect'
+tools/crypto/tsm/tsmsysfs.py --dev /sys/bus/pci/devices/0000:c1:00.0/tsm/dev_status
+tools/crypto/tsm/ide.sh 0000:c1:00.0
+````
+
 ## Prepare Guest
 
 Note: SNP requires OVMF be used as the guest BIOS in order to boot. This implies that the guest must have been initially installed using OVMF so that a UEFI partition is present.
@@ -138,6 +184,17 @@ If you do not already have an installed guest, you can use the launch-qemu.sh sc
 ````
 
 Boot up a guest (tested with Ubuntu 22.04 and 24.04, but any standard *.deb or *.rpm-based distro should work) and install the guest kernel packages built in the previous step. The guest kernel packages are available in 'snp-release-<DATE>/linux/guest' directory.
+
+#### SEV-TIO
+
+The guest driver needs to be blacklisted so that device attestation can be performed and the device can be added to the TCB by the user first. After successful attestation, the original guest driver can then load and run the device securely.
+
+````
+ssh tvm sudo "bash -c 'cat > /etc/modprobe.d/tsm.conf'" <<EOF
+blacklist $DEVICEDRIVER
+softdep $DEVICEDRIVER pre: tsm_pci sev_guest
+EOF
+````
 
 ## Launch SNP Guest
 
@@ -155,6 +212,39 @@ Once the guest is booted, run the following command inside the guest VM to verif
 $ dmesg | grep -i snp
 AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 ````
+
+#### SEV-TIO
+
+Below is an example of locking and accepting a device into the TCB. The `tsmsysfs.py` script is a part of the Linux kernel tree.
+
+```
+#!/bin/bash
+
+DEVS=$(ls /sys/bus/pci/devices)
+echo $DEVS
+TDEVS=
+for d in $DEVS ; do
+        if [ -e /sys/bus/pci/devices/$d/tsm/lock ] ; then
+                sudo bash -c "echo tsm0 > \"/sys/bus/pci/devices/$d/tsm/lock\""
+                ./tsmsysfs.py -r /sys/bus/pci/devices/$d/tsm/tdi_status
+                ./tsmsysfs.py -r /sys/bus/pci/devices/$d/tsm/report
+                sudo bash -c "echo 1 > \"/sys/bus/pci/devices/$d/tsm/accept\""
+                ./tsmsysfs.py -r /sys/bus/pci/devices/$d/tsm/tdi_status
+                TDEVS="$TDEVS $d"
+        fi
+done
+
+sudo modprobe $DEVICEDRIVER
+
+for d in $TDEVS ; do
+        ./tsmsysfs.py -c /sys/bus/pci/devices/$d/tsm/certs
+        ./tsmsysfs.py -m /sys/bus/pci/devices/$d/tsm/meas
+done
+```
+
+#### SEV-TIO
+
+TEE-IO-capable devices are passed through the same way as legacy PCI devices via VFIO but they must use IOMMUFD instead of legacy VFIO Containers.
 
 ## Upgrade SEV firmware
 
@@ -215,6 +305,8 @@ For Genoa firmware updates, the system BIOS has to be updated to get the latest 
 [Qemu doc](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
 
 [guest_memfd (a.k.a. "gmem", or "Unmapped Private Memory")](https://lore.kernel.org/kvm/20230914015531.1419405-1-seanjc@google.com/)
+
+[SEV-TIO ABI] (https://www.amd.com/content/dam/amd/en/documents/epyc-technical-docs/specifications/58271.pdf)
 
 <a name="faq"></a>
 # FAQ
