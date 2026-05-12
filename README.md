@@ -235,7 +235,7 @@ AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 
 [guest_memfd (a.k.a. "gmem", or "Unmapped Private Memory")](https://lore.kernel.org/kvm/20230914015531.1419405-1-seanjc@google.com/)
 
-[AMD SEV Enablement Guide (PDF)](https://rnt.de/wp-content/uploads/2026/03/2025_AMD_Whitepaper_SEV_Enablement_Guide.pdf)
+[AMD SEV Enablement Guide (PDF)](https://docs.amd.com/v/u/en-US/58207-using-sev-with-amd-epyc-processors)
 
 <a name="faq"></a>
 ## FAQ
