@@ -18,7 +18,6 @@ AMD Secure Encrypted Virtualization (SEV) is a set of extensions to the AMD-V ar
 | **SEV 2.0 (ES - Encrypted State)** | EPYC 7002 | Encrypts guest register state during world switches, preventing the hypervisor from directly accessing or modifying registers. Guests are notified before certain world switches via a new exception, allowing selective information sharing. |
 | **SEV 3.0 (SNP - Secure Nested Paging)** | EPYC 7003 | Protects guest memory integrity via the Reverse Map Table (RMP), a system-managed structure that tracks ownership and state of each physical page. Prevents hypervisor-based memory remapping attacks by enforcing single-guest page assignment and validating all memory state transitions. |
 | **SEV 3.1** | EPYC 9004/8004 | Enhancements to SNP (SVSM, TSME, 1006 ASID keys). |
-| **SEV 4.1 (TIO - Trusted I/O)** | EPYC 9005 | Extends the SEV trust boundary to PCIe devices. Allows secure device passthrough to SNP guests using IDE stream encryption and TDISP (PCIe r6.1), protecting confidentiality and integrity of data on the PCIe fabric. |
 
 > **Note:** "Legacy SEV" refers to the first generation. This README uses feature acronyms (SEV-ES, SEV-SNP) when referring to specific software interfaces.
 
@@ -29,8 +28,7 @@ host setup, upstream version requirements, and then walks through launching SEV 
 ## Upstream Support
 
 Modern distributions ship all the components needed to run SEV 3.0+ (SNP)
-guests without building anything from source. SEV 4.1 (TIO) is in active
-upstream development.
+guests without building anything from source.
 
 For a list of OS distributions that have been tested and certified for SEV
 feature support across EPYC platforms, see
@@ -38,22 +36,19 @@ feature support across EPYC platforms, see
 
 ### Upstream Version Reference
 
-| Minimum Version | SEV 1.0 | SEV 2.0 (ES) | SEV 3.0 (SNP) | SEV 4.1 (TIO) |
-|---|---|---|---|---|
-| Kernel (host) | 4.16 | 5.11 | 6.11 | 6.19 (phase 1 / IDE only) |
-| Kernel (guest) | 4.16 | 5.11 | 5.19 (6.11 recommended; full attestation and guest_memfd) | TBD |
-| QEMU | 2.12 | 6.0 | 9.1 | TBD ([dev branch](https://github.com/AMDESE/qemu/tree/tio)) |
-| OVMF | 75b7aa9528bd | edk2-stable202102 | edk2-stable202405 | TBD |
-| libvirt | 4.5 | 4.5 | 10.5.0 | TBD |
-| SEV FW | — | — | 1.51 (0x33) | TBD |
-| PSP BootLoader | — | — | 00.13.00.70 (AGESA PI 1.0.0.9+) | — |
-| Platform | EPYC 7001+ | EPYC 7002+ | EPYC 7003+ | EPYC 9005+ |
+| Minimum Version | SEV 1.0 | SEV 2.0 (ES) | SEV 3.0 (SNP) |
+|---|---|---|---|
+| Kernel (host) | 4.16 | 5.11 | 6.11 |
+| Kernel (guest) | 4.16 | 5.11 | 5.19 (6.11 recommended; full attestation and guest_memfd) |
+| QEMU | 2.12 | 6.0 | 9.1 |
+| OVMF | 75b7aa9528bd | edk2-stable202102 | edk2-stable202405 |
+| libvirt | 4.5 | 4.5 | 10.5.0 |
+| SEV FW | — | — | 1.51 (0x33) |
+| PSP BootLoader | — | — | 00.13.00.70 (AGESA PI 1.0.0.9+) |
+| Platform | EPYC 7001+ | EPYC 7002+ | EPYC 7003+ |
 
 SEV 3.1 (EPYC 9004/8004) uses the same software stack as SEV 3.0
-with additional hardware capabilities. SEV 4.1 (TIO) is in active
-upstream development. Phase 1 (IDE link encryption) landed in
-Linux 6.19; remaining phases (TDISP, secure MMIO/DMA, device
-attestation) follow in subsequent releases. All TIO features require PCIe r6.1+.
+with additional hardware capabilities.
 
 ## Prepare Host
 
@@ -141,21 +136,15 @@ Y
 
 You may skip this step if you do not require development patches not yet available upstream.
 
-### Branch Structure
-
-| Branch | Purpose |
-|---|---|
-| `main` | SEV 3.0 (SNP) development. Builds host/guest kernels, QEMU, and OVMF from AMD development trees. |
-| `tsm` | SEV 4.1 (TIO) development. Adds PCIe device passthrough for TEE-IO capable devices using PCIe r6.1 protocols (IDE stream encryption, TDISP device security). |
+The `main` branch targets SEV 3.0 (SNP) development and builds host/guest kernels, QEMU, and OVMF from AMD development trees.
 
 ### Build
 
-The following command builds the host and guest Linux kernel, qemu and ovmf bios used for launching SEV-SNP guest.
+The following command builds the host and guest Linux kernel, QEMU, and OVMF used for launching an SEV-SNP guest.
 Target repositories and branches are determined by [`stable-commits`](stable-commits).
 
 ```
 # git clone https://github.com/AMDESE/AMDSEV.git
-# git checkout tsm
 # ./build.sh --package
 # sudo cp kvm.conf /etc/modprobe.d/
 ```
