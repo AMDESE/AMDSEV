@@ -198,33 +198,20 @@ AMD Memory Encryption Features active: SEV SEV-ES SEV-SNP
 <a name="resources"></a>
 ## Additional Resources
 
-[AMD SEV developer portal](https://developer.amd.com/sev/)
-
-[SME/SEV white paper](http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/12/AMD_Memory_Encryption_Whitepaper_v7-Public.pdf)
-
-[SEV API Spec](https://www.amd.com/system/files/TechDocs/55766_SEV-KM_API_Specification.pdf)
-
-[APM Section 15.34](http://support.amd.com/TechDocs/24593.pdf)
-
-[KVM forum slides](http://www.linux-kvm.org/images/7/74/02x08A-Thomas_Lendacky-AMDs_Virtualizatoin_Memory_Encryption_Technology.pdf)
-
-[KVM forum videos](https://www.youtube.com/watch?v=RcvQ1xN55Ew)
-
-[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/virtual/kvm/amd-memory-encryption.rst)
-
-[Linux kernel](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
-
-[Libvirt LaunchSecurity tag](https://libvirt.org/formatdomain.html#sev)
-
-[Libvirt SEV](https://libvirt.org/kbase/launch_security_sev.html)
-
-[Libvirt SEV domainCap](https://libvirt.org/formatdomaincaps.html#elementsSEV)
-
-[Qemu doc](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
-
-[guest_memfd (a.k.a. "gmem", or "Unmapped Private Memory")](https://lore.kernel.org/kvm/20230914015531.1419405-1-seanjc@google.com/)
-
-[AMD SEV Enablement Guide (PDF)](https://docs.amd.com/v/u/en-US/58207-using-sev-with-amd-epyc-processors)
+- [AMD SEV Developer Portal](https://developer.amd.com/sev/)
+- [AMD SME/SEV White Paper (PDF)](http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2013/12/AMD_Memory_Encryption_Whitepaper_v7-Public.pdf)
+- [SEV Secure Key Management API Specification (PDF)](https://www.amd.com/system/files/TechDocs/55766_SEV-KM_API_Specification.pdf)
+- [AMD64 Architecture Programmer's Manual, Volume 2 -- Section 15.34: SEV (PDF)](http://support.amd.com/TechDocs/24593.pdf)
+- [KVM Forum Presentation Slides -- AMD Virtualization Memory Encryption (PDF)](http://www.linux-kvm.org/images/7/74/02x08A-Thomas_Lendacky-AMDs_Virtualizatoin_Memory_Encryption_Technology.pdf)
+- [KVM Forum Presentation Video -- AMD Memory Encryption (YouTube)](https://www.youtube.com/watch?v=RcvQ1xN55Ew)
+- [Linux Kernel Documentation -- KVM AMD Memory Encryption (RST)](https://elixir.bootlin.com/linux/latest/source/Documentation/virtual/kvm/amd-memory-encryption.rst)
+- [Linux Kernel Documentation -- x86 AMD Memory Encryption (TXT)](https://elixir.bootlin.com/linux/latest/source/Documentation/x86/amd-memory-encryption.txt)
+- [Libvirt Domain XML -- LaunchSecurity SEV](https://libvirt.org/formatdomain.html#sev)
+- [Libvirt Knowledge Base -- Launch Security with SEV](https://libvirt.org/kbase/launch_security_sev.html)
+- [Libvirt Domain Capabilities -- SEV](https://libvirt.org/formatdomaincaps.html#elementsSEV)
+- [QEMU Documentation -- AMD Memory Encryption](https://git.qemu.org/?p=qemu.git;a=blob;f=docs/amd-memory-encryption.txt;h=f483795eaafed8409b1e96806ca743354338c9dc;hb=HEAD)
+- [guest_memfd (a.k.a. "gmem") -- Unmapped Private Memory (lore.kernel.org)](https://lore.kernel.org/kvm/20230914015531.1419405-1-seanjc@google.com/)
+- [AMD SEV Enablement Guide (PDF)](https://docs.amd.com/v/u/en-US/58207-using-sev-with-amd-epyc-processors)
 
 <a name="faq"></a>
 ## FAQ
