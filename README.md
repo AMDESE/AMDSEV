@@ -25,6 +25,24 @@ This repository provides scripts to build host/guest kernels, QEMU, and OVMF
 from AMD's development branches for SEV 3.0+ (SNP). This README covers
 host setup, upstream version requirements, and then walks through launching SEV guests.
 
+### Development Features
+
+The `main` branch tracks the
+[snp-host-latest](https://github.com/amdese/linux/tree/snp-host-latest) kernel and
+[snp-latest](https://github.com/amdese/qemu/tree/snp-latest) QEMU trees, which
+carry patches under active upstream review. Current development features include:
+
+| Feature | Component | Description |
+|---|---|---|
+| guest_memfd hugepage support | Kernel + QEMU | Hugepage-backed private guest memory for improved performance. |
+| In-place private/shared memory conversion | QEMU | Converts guest memory between private and shared states without re-allocation. |
+| CipherTextHiding | Kernel | Prevents ciphertext side-channel attacks on SNP guests. |
+| SNP policy bit publishing | Kernel | Exposes supported SEV-SNP policy bits to userspace via the CCP/PSP driver. |
+| SNP_FEATURE_INFO command | Kernel | New firmware command to query SNP feature support. |
+
+As these features land upstream, they will be removed from the development
+branches and this list.
+
 ## Upstream Support
 
 Modern distributions ship all the components needed to run SEV 3.0+ (SNP)
