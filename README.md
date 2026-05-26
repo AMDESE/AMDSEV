@@ -6,7 +6,7 @@
 
 This repo will build host/guest kernel, QEMU, and OVMF packages that are known to work in conjunction with the latest development trees for SEV Feature host/hypervisor support. The build scripts will utilize the latest published [development tree for the SNP host kernel](https://github.com/amdese/linux/tree/snp-host-latest), which will generally correspond to the latest patchset posted upstream along with fixes/changes on top resulting from continued development/testing and upstream review. It will also utilize the latest published [development tree for QEMU](https://github.com/amdese/qemu/tree/snp-latest).
 
-Note that SEV 3.0+ hypervisor support is still being actively developed/upstreamed. Branches of this repository provide early snapshots of new features. Please report any issues with it or any other components built by these scripts via the issue tracker for this repo [here](https://github.com/AMDESE/AMDSEV/issues).
+Note that while base SEV 3.0 (SNP) support is upstream (see [Upstream Version Reference](#upstream-version-reference)), additional features are still being actively developed and upstreamed. Branches of this repository provide early snapshots of those features. Please report any issues via the [issue tracker](https://github.com/AMDESE/AMDSEV/issues).
 
 ### SEV Features
 
@@ -17,7 +17,7 @@ AMD Secure Encrypted Virtualization (SEV) is a set of extensions to the AMD-V ar
 | **SEV 1.0** | EPYC 7001 | Encrypts guest memory pages so only the guest has access to unencrypted data. Each VM uses a unique encryption key. |
 | **SEV 2.0 (ES - Encrypted State)** | EPYC 7002 | Encrypts guest register state during world switches, preventing the hypervisor from directly accessing or modifying registers. Guests are notified before certain world switches via a new exception, allowing selective information sharing. |
 | **SEV 3.0 (SNP - Secure Nested Paging)** | EPYC 7003 | Protects guest memory integrity via the Reverse Map Table (RMP), a system-managed structure that tracks ownership and state of each physical page. Prevents hypervisor-based memory remapping attacks by enforcing single-guest page assignment and validating all memory state transitions. |
-| **SEV 3.1** | EPYC 9004/8004 | Enhancements to SNP (SVSM, TSME, 1006 ASID keys). |
+| **SEV 3.1** | EPYC 9004/8004 | SNP enhancements - increases ASID key count to 1006 (vs. 509 on EPYC 7003). |
 
 > **Note:** "Legacy SEV" refers to the first generation. This README uses feature acronyms (SEV-ES, SEV-SNP) when referring to specific software interfaces.
 
@@ -34,11 +34,11 @@ carry patches under active upstream review. Current development features include
 
 | Feature | Component | Description |
 |---|---|---|
-| guest_memfd hugepage support | Kernel + QEMU | Hugepage-backed private guest memory for improved performance. |
-| In-place private/shared memory conversion | QEMU | Converts guest memory between private and shared states without re-allocation. |
-| CipherTextHiding | Kernel | Prevents ciphertext side-channel attacks on SNP guests. |
-| SNP policy bit publishing | Kernel | Exposes supported SEV-SNP policy bits to userspace via the CCP/PSP driver. |
-| SNP_FEATURE_INFO command | Kernel | New firmware command to query SNP feature support. |
+| guest_memfd hugepage support | Kernel ([46cf7f3](https://github.com/AMDESE/linux/commit/46cf7f3ee437), [c0e0812](https://github.com/AMDESE/linux/commit/c0e081274b57)) + QEMU ([afe54d0](https://github.com/AMDESE/qemu/commit/afe54d06015d)) | Hugepage-backed private guest memory for improved performance. |
+| In-place private/shared memory conversion | QEMU ([565ac02](https://github.com/AMDESE/qemu/commit/565ac0203506), [e7af839](https://github.com/AMDESE/qemu/commit/e7af839181dd)) | Converts guest memory between private and shared states without re-allocation. |
+| CipherTextHiding | Kernel ([799613d](https://github.com/AMDESE/linux/commit/799613d7e04a), [d747c33](https://github.com/AMDESE/linux/commit/d747c33e7cc5), [e115032](https://github.com/AMDESE/linux/commit/e115032456c6), [65e2f4f](https://github.com/AMDESE/linux/commit/65e2f4fe6191)) | Prevents ciphertext side-channel attacks on SNP guests. |
+| SNP policy bit publishing | Kernel ([c8e9926](https://github.com/AMDESE/linux/commit/c8e992692f8d), [088f53d](https://github.com/AMDESE/linux/commit/088f53d33cf3), [5bf85ca](https://github.com/AMDESE/linux/commit/5bf85cab04fc), [4ccd326](https://github.com/AMDESE/linux/commit/4ccd326c06a5)) | Exposes supported SEV-SNP policy bits to userspace via the CCP/PSP driver. |
+| SNP_FEATURE_INFO command | Kernel ([49dbeaf](https://github.com/AMDESE/linux/commit/49dbeaffeee1), [b348455](https://github.com/AMDESE/linux/commit/b348455ed90d), [c268cdd](https://github.com/AMDESE/linux/commit/c268cddda589)) | New firmware command to query SNP feature support. |
 
 As these features land upstream, they will be removed from the development
 branches and this list.
@@ -154,7 +154,7 @@ Y
 
 You may skip this step if you do not require development patches not yet available upstream.
 
-The `main` branch targets SEV 3.0 (SNP) development and builds host/guest kernels, QEMU, and OVMF from AMD development trees.
+The `main` branch builds development patches beyond base SEV 3.0 (SNP) that are not yet available upstream (see [Development Features](#development-features)). It builds host/guest kernels, QEMU, and OVMF from AMD development trees.
 
 ### Build
 
