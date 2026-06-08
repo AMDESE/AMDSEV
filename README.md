@@ -96,6 +96,12 @@ Advanced → NBIO Common Options → IOMMU/Security
     SEV-SNP Support → Enable
 ```
 
+Optionally, to enable ciphertext hiding:
+
+```
+UMC Common Options > DDR RAS > ECC Configuration > CypherText Hiding > Enable
+```
+
 ### SEV Firmware
 
 Minimum firmware versions are listed in the
